@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Progetti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <!-- NAVBAR -->
+    <nav class="sticky top-0 z-50 bg-white shadow px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-sky-600 text-2xl">📊</span>
+            <h1 class="font-bold text-lg">Gestione Fiscale AI</h1>
+        </div>
+
+        <a href="sito_consulenza_completo.html"
+            class="hidden md:inline-flex items-center gap-1 text-sm text-slate-600 font-medium hover:text-slate-800 transition">
+            Torna alla Home
+        </a>
+
+        <ul class="flex gap-4 font-medium items-center">
+         
+            <li><a href="index.html" class="nav-link">Dashboard</a></li>
+            <li><a href="ml.html" class="nav-link">Machine Learning</a></li>
+            <li><a href="ai-reports.html" class="nav-link">AI Reports</a></li>
+
+            <!-- Dropdown Servizi -->
+            <li class="relative">
+                <button class="nav-link flex items-center gap-1" id="servicesBtn" aria-haspopup="true"
+                    aria-expanded="false">
+                    Servizi
+                    <svg class="w-3 h-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <ul id="servicesDropdown" class="absolute left-0 mt-2 w-52 bg-white shadow-lg rounded-lg hidden z-50"
+                    role="menu" aria-labelledby="servicesBtn">
+                    <li><a href="legal.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">Legal</a></li>
+                    <li><a href="tax.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">Tax</a></li>
+                    <li><a href="payroll.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">Payroll</a>
+                    </li>
+                    <li><a href="automation.html" class="block px-4 py-2 hover:bg-slate-100"
+                            role="menuitem">Automation</a></li>
+                    <li><a href="global.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">Global</a></li>
+                    <li><a href="corporate-finance.html" class="block px-4 py-2 hover:bg-slate-100"
+                            role="menuitem">Corporate Finance</a></li>
+                    <li><a href="compliance.html" class="block px-4 py-2 hover:bg-slate-100"
+                            role="menuitem">Compliance</a></li>
+                    <li><a href="esg.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">ESG</a></li>
+                    <li><a href="academy.html" class="block px-4 py-2 hover:bg-slate-100" role="menuitem">Academy</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li><a href="fatture.html" class="nav-link">Fatture</a></li>
+            <li><a href="documenti.html" class="nav-link">Documenti</a></li>
+            <li><a href="profilo.html" class="nav-link">Profilo</a></li>
+            <li><a href="help.html" class="nav-link">Help</a></li>
+        </ul>
+    </nav>
+
+    <div class="max-w-7xl mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-6">
+        <h1 class="text-3xl font-bold">📊 Gestione Progetti</h1>
+
+        <div class="flex gap-4 mb-4">
+            <a href="timeline.html" class="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300 transition">Timeline</a>
+            <a href="calendar.html" class="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300 transition">Calendar</a>
+            <a href="board.html" class="px-4 py-2 bg-gray-200 rounded-xl hover:bg-gray-300 transition">Board</a>
+        </div>
+
+        <button id="addProjectBtn"
+            class="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition">➕ Nuovo
+            Progetto</button>
+        <div id="projectsContainer" class="space-y-8"></div>
+
+
+
+    </div>
+
+    <!-- TEMPLATE PROGETTO -->
+    <template id="projectTemplate">
+        <div class="border border-gray-200 rounded-2xl p-4 shadow bg-white space-y-3">
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <input type="text" placeholder="Titolo progetto"
+                        class="text-xl font-semibold border-b focus:outline-none flex-1 mr-4"
+                        aria-label="Titolo progetto" />
+                    <span class="projectProgress text-sm text-gray-600">Progresso: 0%</span>
+                    <button class="addTaskBtn bg-blue-500 text-white px-3 py-1 rounded-xl hover:bg-blue-600 ml-2">+
+                        Task</button>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                        class="project-progress-bar h-3 rounded-full transition-all duration-300 ease-in-out w-0 bg-red-500">
+                    </div>
+                </div>
+            </div>
+            <div class="task-header grid grid-cols-8 gap-2 text-center bg-gray-100 p-2 rounded-md">
+                <span>Task</span>
+                <span class="col-span-2">Descrizione</span>
+                <span>Assegnato</span>
+                <span>Scadenza</span>
+                <span>Priorità</span>
+
+                <span>✔</span>
+            </div>
+            <div class="tasks space-y-3"></div>
+        </div>
+    </template>
+
+    <!-- TEMPLATE TASK -->
+    <template id="taskTemplate">
+        <div class="task border border-gray-300 rounded-xl p-3 bg-gray-50" data-completion="0">
+            <div class="grid grid-cols-7 gap-2 items-center">
+                <input type="text" class="col-span-1 border-b focus:outline-none" placeholder="Titolo"
+                    aria-label="Titolo task" />
+                <input type="text" class="col-span-2 border-b focus:outline-none" placeholder="Descrizione"
+                    aria-label="Descrizione task" />
+                <select class="assignee col-span-1 border rounded-lg px-1 text-sm" aria-label="Assegnato task">
+                    <option value="">-- Seleziona --</option>
+                    <option value="Alice">Alice</option>
+                    <option value="Bob">Bob</option>
+                    <option value="Carla">Carla</option>
+                    <option value="Davide">Davide</option>
+                </select>
+                <input type="date" class="col-span-1 border-b focus:outline-none" aria-label="Scadenza task" />
+                <select class="priority col-span-1 border rounded-lg px-1 text-sm" aria-label="Priorità task">
+                    <option value="urgent">Urgente</option>
+                    <option value="normal">Normale</option>
+                    <option value="low">Bassa</option>
+                </select>
+                <button class="confirmTask bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">✔</button>
+            </div>
+
+            <div class="mt-2 flex items-center space-x-3">
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                        class="progress-bar h-2.5 rounded-full transition-all duration-300 ease-in-out w-0 bg-green-500">
+                    </div>
+                </div>
+            </div>
+
+            <button class="addSubTask mt-2 bg-gray-300 text-gray-700 px-2 py-1 rounded hover:bg-gray-400">+
+                Sotto-task</button>
+            <div class="subtasks pl-4 mt-2 space-y-2 hidden">
+                <div class="subtask-header grid grid-cols-4 gap-2 text-center bg-gray-50 p-1 rounded-md">
+                    <span class="col-span-2">Nome</span>
+                    <span>Scadenza</span>
+                    <span>✔</span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- TEMPLATE SUBTASK -->
+    <template id="subtaskTemplate">
+        <div class="subtask grid grid-cols-4 gap-2 items-center border border-gray-200 rounded-lg p-2 bg-white"
+            data-completion="0">
+            <input type="text" class="col-span-2 border-b focus:outline-none" placeholder="Nome subtask"
+                aria-label="Nome subtask" />
+            <input type="date" class="col-span-1 border-b focus:outline-none" aria-label="Scadenza subtask" />
+            <button class="confirmSub bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">✔</button>
+        </div>
+    </template>
+
+    <script type="module">
+        // =======================
+        // CONFIGURAZIONE PRIORITÀ
+        // =======================
+        const priorityMap = {
+            urgent: { weight: 3 },
+            normal: { weight: 2 },
+            low: { weight: 1 }
+        };
+
+        // =======================
+        // ELEMENTI PRINCIPALI
+        // =======================
+        const projectsContainer = document.getElementById('projectsContainer');
+        const addProjectBtn = document.getElementById('addProjectBtn');
+
+        // Dropdown servizi accessibile
+        const servicesBtn = document.getElementById('servicesBtn');
+        const servicesDropdown = document.getElementById('servicesDropdown');
+
+        servicesBtn.addEventListener('click', () => {
+            const expanded = servicesBtn.getAttribute('aria-expanded') === 'true';
+            servicesBtn.setAttribute('aria-expanded', !expanded);
+            servicesDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                servicesBtn.setAttribute('aria-expanded', false);
+                servicesDropdown.classList.add('hidden');
+            }
+        });
+
+        // =======================
+        // AGGIUNTA PROGETTO
+        // =======================
+        addProjectBtn.addEventListener('click', () => {
+            const projectTemplate = document.getElementById('projectTemplate');
+            const projectEl = projectTemplate.content.cloneNode(true).children[0];
+            projectsContainer.appendChild(projectEl);
+
+            const addTaskBtn = projectEl.querySelector('.addTaskBtn');
+            const tasksContainer = projectEl.querySelector('.tasks');
+
+            addTaskBtn.addEventListener('click', () => addTask(tasksContainer, projectEl));
+        });
+
+        // =======================
+        // AGGIUNTA TASK
+        // =======================
+        function addTask(tasksContainer, projectEl) {
+            const taskTemplate = document.getElementById('taskTemplate');
+            const taskEl = taskTemplate.content.cloneNode(true).children[0];
+
+            // Focus sul titolo
+            taskEl.querySelector('input[placeholder="Titolo"]').focus();
+
+            // Event listener completamento task
+            taskEl.querySelector('.confirmTask').addEventListener('click', () => toggleCompletion(taskEl, 'task'));
+
+            // Event listener aggiunta subtask
+            const addSubTaskBtn = taskEl.querySelector('.addSubTask');
+            const subtasksContainer = taskEl.querySelector('.subtasks');
+            addSubTaskBtn.addEventListener('click', () => {
+                subtasksContainer.classList.remove('hidden');
+                addSubTask(subtasksContainer, taskEl);
+            });
+
+            tasksContainer.appendChild(taskEl);
+        }
+
+        // =======================
+        // AGGIUNTA SUBTASK
+        // =======================
+        function addSubTask(subtasksContainer, parentTask) {
+            const subtaskTemplate = document.getElementById('subtaskTemplate');
+            const subtaskEl = subtaskTemplate.content.cloneNode(true).children[0];
+
+            // Focus sul nome subtask
+            subtaskEl.querySelector('input[placeholder="Nome subtask"]').focus();
+
+            // Completamento subtask
+            subtaskEl.querySelector('.confirmSub').addEventListener('click', () => toggleCompletion(subtaskEl, 'subtask'));
+
+            subtasksContainer.appendChild(subtaskEl);
+        }
+
+        // =======================
+        // TOGGLE COMPLETION TASK/SUBTASK
+        // =======================
+        function toggleCompletion(element, type) {
+            if (type === 'task') {
+                const subtasks = element.querySelectorAll('.subtask');
+                if (subtasks.length) {
+                    // Task con subtasks: completamento = media subtasks
+                    const completed = [...subtasks].filter(s => Number(s.dataset.completion) === 100).length;
+                    const percent = Math.round((completed / subtasks.length) * 100);
+                    element.dataset.completion = percent;
+                    element.querySelector('.progress-bar').style.width = percent + '%';
+                    element.classList.toggle('bg-green-100', percent === 100);
+                } else {
+                    // Task senza subtasks: toggle manuale
+                    const newValue = Number(element.dataset.completion) === 100 ? 0 : 100;
+                    element.dataset.completion = newValue;
+                    element.querySelector('.progress-bar').style.width = newValue + '%';
+                    element.classList.toggle('bg-green-100', newValue === 100);
+                }
+                const projectEl = element.closest('.border-gray-200');
+                updateProjectProgress(projectEl);
+            } else if (type === 'subtask') {
+                const newValue = Number(element.dataset.completion) === 100 ? 0 : 100;
+                element.dataset.completion = newValue;
+                element.classList.toggle('bg-green-100', newValue === 100);
+
+                const parentTask = element.closest('.task');
+                updateTaskFromSubtasks(parentTask);
+            }
+        }
+
+        // =======================
+        // AGGIORNAMENTO TASK DA SUBTASK
+        // =======================
+        function updateTaskFromSubtasks(task) {
+            const subtasks = task.querySelectorAll('.subtask');
+            if (!subtasks.length) return;
+
+            const total = subtasks.length;
+            const completed = [...subtasks].filter(s => Number(s.dataset.completion) === 100).length;
+            const percent = Math.round((completed / total) * 100);
+
+            task.dataset.completion = percent;
+            const progressBar = task.querySelector('.progress-bar');
+            progressBar.style.width = percent + '%';
+            task.classList.toggle('bg-green-100', percent === 100);
+
+            const projectEl = task.closest('.border-gray-200');
+            updateProjectProgress(projectEl);
+        }
+
+        // =======================
+        // AGGIORNAMENTO PROGRESSO PROGETTO
+        // =======================
+        function updateProjectProgress(projectEl) {
+            const tasks = projectEl.querySelectorAll('.task');
+            let totalWeight = 0, completedWeight = 0;
+
+            tasks.forEach(task => {
+                const priority = task.querySelector('.priority').value;
+                const weight = priorityMap[priority].weight;
+                totalWeight += weight;
+                const percent = Number(task.dataset.completion) || 0;
+                completedWeight += weight * (percent / 100);
+            });
+
+            const percentage = totalWeight ? Math.round((completedWeight / totalWeight) * 100) : 0;
+
+            const progressText = projectEl.querySelector('.projectProgress');
+            const bar = projectEl.querySelector('.project-progress-bar');
+
+            progressText.textContent = `Progresso: ${percentage}%`;
+
+            // Aggiornamento dinamico con Tailwind
+            bar.classList.remove('bg-red-500', 'bg-yellow-400', 'bg-green-500');
+            const colorClass = percentage < 50 ? 'bg-red-500' : percentage < 80 ? 'bg-yellow-400' : 'bg-green-500';
+            bar.classList.add(colorClass);
+            bar.style.width = percentage + '%';
+        }
+
+
+        // Funzione per salvare tutti i progetti
+        function saveProjectsToLocalStorage() {
+            const projects = [];
+            document.querySelectorAll('.project').forEach(proj => {
+                const title = proj.querySelector('input[placeholder="Titolo progetto"]').value;
+                const tasks = [];
+                proj.querySelectorAll('.task').forEach(task => {
+                    const tTitle = task.querySelector('input[placeholder="Titolo"]').value;
+                    const tDesc = task.querySelector('input[placeholder="Descrizione"]').value;
+                    const assignee = task.querySelector('.assignee').value;
+                    const priority = task.querySelector('.priority').value;
+                    const completion = Number(task.dataset.completion) || 0;
+
+                    const subtasks = [];
+                    task.querySelectorAll('.subtask').forEach(sub => {
+                        subtasks.push({
+                            name: sub.querySelector('input[placeholder="Nome subtask"]').value,
+                            due: sub.querySelector('input[type="date"]').value,
+                            completion: Number(sub.dataset.completion) || 0
+                        });
+                    });
+
+                    tasks.push({ tTitle, tDesc, assignee, priority, completion, subtasks });
+                });
+
+                projects.push({ title, tasks });
+            });
+
+            localStorage.setItem('projectsData', JSON.stringify(projects));
+        }
+
+        // Chiama saveProjectsToLocalStorage ogni volta che aggiungi o completi un task/subtask
+        addProjectBtn.addEventListener('click', () => {
+            const projectEl = createProjectElement();
+            projectsContainer.appendChild(projectEl);
+            saveProjectsToLocalStorage();
+        });
+        projectsContainer.addEventListener('click', () => saveProjectsToLocalStorage());
+
+
+            // Quando si crea un nuovo progetto
+            function addProject(title, dueDate) {
+                const projects = JSON.parse(localStorage.getItem('projectsCalendar')) || [];
+
+                projects.push({ title, dueDate }); // Salva solo titolo e scadenza
+                localStorage.setItem('projectsCalendar', JSON.stringify(projects));
+            }
+
+
+    </script>
+
+
+</body>
+
+</html>

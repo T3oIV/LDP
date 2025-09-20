@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+
+<h1 class="text-4xl font-bold mb-6 text-gray-800 text-center">📆 Calendario</h1>
+
+<!-- Controlli mese -->
+<div class="flex justify-between items-center mb-6 max-w-5xl mx-auto">
+    <button id="prevMonth" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-lg">← Mese precedente</button>
+    <div id="monthLabel" class="font-semibold text-2xl text-gray-700"></div>
+    <button id="nextMonth" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition text-lg">Mese successivo →</button>
+</div>
+
+<!-- Griglia calendario -->
+<div id="calendarContainer" class="grid grid-cols-7 gap-3 max-w-6xl mx-auto bg-white p-6 rounded-3xl shadow-xl"></div>
+
+<script>
+let currentDate = new Date();
+
+function renderCalendar(date) {
+    const container = document.getElementById('calendarContainer');
+    container.innerHTML = '';
+    const monthLabel = document.getElementById('monthLabel');
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthNames = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+    monthLabel.textContent = `${monthNames[month]} ${year}`;
+
+    // Intestazione giorni
+    const daysOfWeek = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+    daysOfWeek.forEach((day,i) => {
+        const div = document.createElement('div');
+        div.className = `font-bold text-center p-4 border-b text-lg ${i>=5?'text-red-500':'text-gray-700'}`;
+        div.textContent = day;
+        container.appendChild(div);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay(); // 0=Dom,1=Lun
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const offset = firstDay === 0 ? 6 : firstDay - 1;
+
+    // Celle vuote prima del primo giorno
+    for (let i = 0; i < offset; i++) container.appendChild(document.createElement('div'));
+
+    // Celle giorno del mese
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = `min-h-[120px] border rounded-xl p-3 relative bg-gray-50 hover:shadow-lg transition`;
+
+        // Color weekend
+        const dayOfWeek = (day + offset - 1) % 7;
+        if(dayOfWeek >=5) dayCell.classList.add('bg-red-50');
+
+        const dayNumber = document.createElement('div');
+        dayNumber.className = "font-semibold text-lg mb-2 text-gray-800";
+        dayNumber.textContent = day;
+        dayCell.appendChild(dayNumber);
+
+        container.appendChild(dayCell);
+    }
+
+    // Progetti da localStorage
+    const projects = JSON.parse(localStorage.getItem('projectsCalendar')) || [];
+    projects.forEach(proj => {
+        const due = new Date(proj.dueDate);
+        if(due.getMonth() === month && due.getFullYear() === year){
+            const dayCellIndex = due.getDate() + offset - 1 + 7; // +7 intestazione
+            const dayCells = container.querySelectorAll("div");
+            if(dayCells[dayCellIndex]){
+                const eventDiv = document.createElement('div');
+                eventDiv.className = "bg-blue-500 text-white text-sm rounded px-3 py-1 mt-2 cursor-pointer hover:bg-blue-600 shadow";
+                eventDiv.textContent = proj.title;
+                eventDiv.title = `${proj.title} - Scadenza: ${proj.dueDate}`; // tooltip
+                dayCells[dayCellIndex].appendChild(eventDiv);
+            }
+        }
+    });
+}
+
+// Pulsanti mese
+document.getElementById('prevMonth').addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar(currentDate);
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate);
+});
+
+// Render iniziale
+renderCalendar(currentDate);
+</script>
+
+</body>
+</html>

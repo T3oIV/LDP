@@ -1,0 +1,590 @@
+<!-- incollare al posto di questo codice ml.html quello di mlPowerBI.html
+
+Cosa devi sostituire
+
+<REPORT_ID_ML> e <REPORT_ID_AI> → gli ID dei tuoi report Power BI.
+
+<EMBED_URL_ML> e <EMBED_URL_AI> → gli embed URL ottenuti da Power BI Service.
+
+<ACCESS_TOKEN> → il token di accesso generato con Azure AD (puoi farlo lato back-end o con Azure AD implicit flow).
+
+👉 Così hai un sito unico (sito_consulenza_completo) con la stessa navbar in tutte le pagine, 
+e ogni pagina mostra un report diverso (Home, Machine Learning, AI Reports). -->
+
+
+<!DOCTYPE html> 
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML - Gestione Fiscale AI</title>
+  
+  <!-- Librerie -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <!-- SheetJS -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 z-50 bg-white shadow px-6 py-4 flex justify-between items-center">
+  <div class="flex items-center gap-2">
+    <span class="text-sky-600 text-2xl">📊</span>
+    <h1 class="font-bold text-lg">Gestione Fiscale AI</h1>
+  </div>
+
+  <a href="index.html"
+    class="hidden md:inline-flex items-center gap-1 text-sm text-slate-600 font-medium hover:text-slate-800 transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
+    </svg>
+    Torna alla Home
+  </a>
+
+  <ul class="flex gap-4 font-medium">
+
+    <li><a href="powerbi.html" class="nav-link">Dashboard</a></li>
+    <li><a href="ml.html" class="nav-link">Machine Learning</a></li>
+    <li><a href="ai-reports.html" class="nav-link">AI Reports</a></li>
+
+      <!-- Dropdown Servizi -->
+      <div class="relative group">
+        <button class="nav-link flex items-center gap-1">Servizi
+          <svg class="w-3 h-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div
+          class="absolute left-0 mt-2 w-52 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+          <a href="legal.html" class="block px-4 py-2 hover:bg-slate-100">Legal</a>
+          <a href="tax.html" class="block px-4 py-2 hover:bg-slate-100">Tax</a>
+          <a href="payroll.html" class="block px-4 py-2 hover:bg-slate-100">Payroll</a>
+          <a href="automation.html" class="block px-4 py-2 hover:bg-slate-100">Automation</a>
+          <a href="global.html" class="block px-4 py-2 hover:bg-slate-100">Global</a>
+          <a href="corporate-finance.html" class="block px-4 py-2 hover:bg-slate-100">Corporate Finance</a>
+          <a href="compliance.html" class="block px-4 py-2 hover:bg-slate-100">Compliance</a>
+          <a href="esg.html" class="block px-4 py-2 hover:bg-slate-100">ESG</a>
+          <a href="academy.html" class="block px-4 py-2 hover:bg-slate-100">Academy</a>
+        </div>
+      </div>
+      
+    <li><a href="fatture.html" class="nav-link">Fatture</a></li>
+    <li><a href="documenti.html" class="nav-link">Documenti</a></li>
+    <li><a href="profilo.html" class="nav-link">Profilo</a></li>
+    <li><a href="help.html" class="nav-link">Help</a></li>
+  </ul>
+</nav>
+
+<!-- UPLOAD XLSX + RESET -->
+<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-4 items-center">
+  <div class="w-full md:w-auto">
+    <label for="uploadXlsx" class="block mb-1 font-medium">📂 Carica file XLSX</label>
+    <input type="file" id="uploadXlsx" class="border rounded p-2 w-full md:w-64" />
+  </div>
+  <button id="resetBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">🔄 Reset dati</button>
+</div>
+
+<main class="max-w-6xl mx-auto p-6 space-y-8">
+
+  <!-- KPI Rapidi -->
+  <section class="bg-white rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+    <div class="p-4 bg-sky-100 rounded-lg">
+      <h4 class="font-semibold text-slate-800">Totale Entrate</h4>
+      <p id="kpiRevenue" class="text-xl font-bold text-slate-900">€0</p>
+    </div>
+    <div class="p-4 bg-green-100 rounded-lg">
+      <h4 class="font-semibold text-slate-800">Utile Medio</h4>
+      <p id="kpiProfit" class="text-xl font-bold text-slate-900">€0</p>
+    </div>
+    <div class="p-4 bg-red-100 rounded-lg">
+      <h4 class="font-semibold text-slate-800">Rischio Stimato</h4>
+      <p id="kpiRisk" class="text-xl font-bold text-slate-900">0%</p>
+    </div>
+  </section>
+
+  <!-- Esporta Report -->
+  <section class="bg-white rounded-xl shadow p-6 flex gap-4">
+    <button id="exportPdfBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">📄 Esporta PDF</button>
+    <button id="exportExcelBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">📊 Esporta Excel</button>
+  </section>
+
+  <h2 class="text-2xl font-bold mb-6">🤖 Previsioni Entrate</h2>
+
+  <!-- Modello ML -->
+  <section class="bg-white rounded-xl shadow p-6 space-y-4">
+    <label for="modelSelector" class="font-medium">Seleziona Modello ML</label>
+    <select id="modelSelector" class="border rounded p-2 w-full focus:ring-2 focus:ring-sky-400">
+      <option value="linear">Linear Regression</option>
+      <option value="poly">Polinomial Regression</option>
+      <option value="ma">Media Mobile</option>
+      <option value="arima">ARIMA Simulato</option>
+    </select>
+    <button id="trainModelBtn" class="bg-sky-600 text-white px-4 py-2 rounded w-full hover:bg-sky-700 transition">🚀 Allena Modello</button>
+  </section>
+
+  <!-- Output Previsioni -->
+  <section id="mlForecastOutput" class="bg-white rounded-xl shadow p-6">
+    <p class="text-slate-500 text-sm">Qui compariranno i risultati del modello selezionato.</p>
+  </section>
+
+  <!-- Grafico Previsioni -->
+  <section class="bg-white rounded-xl shadow p-6">
+    <canvas id="mlChart" class="w-full h-80"></canvas>
+  </section>
+
+  <!-- KPI Avanzati -->
+  <section id="advancedAnalysis" class="bg-white rounded-xl shadow p-6">
+    <div id="kpiTable" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- Scenario What-If -->
+  <section class="bg-white rounded-xl shadow p-4 space-y-4">
+  <h3 class="text-gray-700 font-semibold mb-2">What If ?</h3>
+  <div class="grid md:grid-cols-3 gap-4">
+      <div>
+        <label for="costChange" class="block mb-1 font-medium">Riduzione Costi (%)</label>
+        <input type="range" id="costChange" min="0" max="50" value="0" class="w-full">
+        <span id="costChangeVal">0%</span>
+      </div>
+      <div>
+        <label for="revenueChange" class="block mb-1 font-medium">Aumento Ricavi (%)</label>
+        <input type="range" id="revenueChange" min="0" max="50" value="0" class="w-full">
+        <span id="revenueChangeVal">0%</span>
+      </div>
+      <div>
+        <label for="investmentChange" class="block mb-1 font-medium">Variazione Investimenti (%)</label>
+        <input type="range" id="investmentChange" min="0" max="50" value="0" class="w-full">
+        <span id="investmentChangeVal">0%</span>
+      </div>
+    </div>
+    <button id="simulateBtn" class="bg-purple-600 text-white px-4 py-2 rounded w-full hover:bg-purple-700 transition">🎯 Applica Simulazione</button>
+    <div id="whatIfOutput" class="text-slate-700 mt-4"></div>
+  </section>
+</main>
+
+<style>
+.nav-link {
+  position: relative;
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: #0ea5e9;
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after, .nav-link.active::after { width: 100%; }
+.nav-link.active { color: #0ea5e9; font-weight:600; }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", ()=>{
+  // evidenzia nav
+  document.querySelectorAll(".nav-link").forEach(link=>{
+    if(link.href === window.location.href) link.classList.add("active");
+  });
+
+  // ---- STATO GLOBALE ----
+  let series = [];        // valori per training/forecast (preferenza: Entrate, fallback: Utile)
+  let seriesName = null;  // "Entrate" | "Utile"
+  let chartInstance = null;
+
+  // ---- KPI ----
+  updateKPI(0, 0, 0);
+  function updateKPI(revenue, profit, risk){
+    document.getElementById('kpiRevenue').textContent = revenue ? "€" + Number(revenue).toLocaleString() : "€0";
+    document.getElementById('kpiProfit').textContent  = profit  ? "€" + Number(profit).toLocaleString()   : "€0";
+    document.getElementById('kpiRisk').textContent    = (risk || 0) + "%";
+  }
+
+  // Slider live update
+  ['costChange', 'revenueChange', 'investmentChange'].forEach(id => {
+    const slider = document.getElementById(id);
+    const output = document.getElementById(id + 'Val');
+    slider.addEventListener('input', () => output.textContent = slider.value + '%');
+  });
+
+  // Inizializza valori al caricamento
+  document.getElementById('costChangeVal').textContent = document.getElementById('costChange').value + "%";
+  document.getElementById('revenueChangeVal').textContent = document.getElementById('revenueChange').value + "%";
+  document.getElementById('investmentChangeVal').textContent = document.getElementById('investmentChange').value + "%";
+
+  // ---- LETTURA EXCEL ----
+  document.getElementById('uploadXlsx').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt)=>{
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(firstSheet);
+
+      if(rows.length === 0){
+        series = []; seriesName = null;
+        updateKPI(0,0,0);
+        info("Nessun dato trovato nel file.");
+        return;
+      }
+
+      const revenues = [];
+      const profits  = [];
+
+      rows.forEach(row=>{
+        if(row["Entrate"] !== undefined && row["Entrate"] !== null && !isNaN(row["Entrate"])) {
+          revenues.push(Number(row["Entrate"]));
+        }
+        if(row["Utile"] !== undefined && row["Utile"] !== null && !isNaN(row["Utile"])) {
+          profits.push(Number(row["Utile"]));
+        }
+      });
+
+      // KPI
+      const totalRevenue = revenues.length ? revenues.reduce((a,b)=>a+b,0) : 0;
+      const avgProfit    = profits.length  ? (profits.reduce((a,b)=>a+b,0) / profits.length) : 0;
+
+      // rischio = std/mean utile
+      let risk = 0;
+      if(profits.length){
+        const mean = avgProfit || 0;
+        const variance = profits.reduce((acc,val)=> acc + Math.pow(val-mean,2),0) / profits.length;
+        const stdDev = Math.sqrt(variance);
+        risk = mean ? ((stdDev/mean)*100).toFixed(1) : 0;
+      }
+      updateKPI(totalRevenue, avgProfit, risk);
+
+      // Serie per modello: preferisci Entrate, altrimenti Utile
+      if(revenues.length){
+        series = revenues.slice();
+        seriesName = "Entrate";
+      } else if (profits.length) {
+        series = profits.slice();
+        seriesName = "Utile";
+      } else {
+        series = []; seriesName = null;
+      }
+
+      if(series.length){
+        info(`Serie caricata: ${seriesName} (${series.length} punti). Seleziona un modello e premi “Allena Modello”.`);
+      } else {
+        info("Non ho trovato colonne “Entrate” o “Utile”.");
+      }
+
+      // reset grafico e output
+      renderChart([], []);
+      document.getElementById('mlForecastOutput').innerHTML = `<p class="text-slate-500 text-sm">Dati aggiornati. Pronto per l'allenamento.</p>`;
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  // ---- TRAIN MODEL BUTTON ----
+  document.getElementById('trainModelBtn').addEventListener('click', ()=>{
+    if(!series.length){
+      alert('Carica prima un file XLSX con una colonna "Entrate" o "Utile".');
+      return;
+    }
+    const model = document.getElementById('modelSelector').value;
+    const horizon = 6; // previsioni per 6 periodi
+    const result = runModel(model, series, horizon);
+    renderChart(series, result.forecast);
+    showForecastOutput(model, result);
+  });
+
+
+  // ---- SLIDER LIVE UPDATE ----
+  ['costChange', 'revenueChange', 'investmentChange'].forEach(id => {
+    const slider = document.getElementById(id);
+    const output = document.getElementById(id + 'Val');
+    slider.addEventListener('input', () => {
+      output.textContent = slider.value + '%';
+    });
+  });
+
+  // ---- INIZIALIZZA I VALORI AL CARICAMENTO ----
+  document.getElementById('costChangeVal').textContent = document.getElementById('costChange').value + "%";
+  document.getElementById('revenueChangeVal').textContent = document.getElementById('revenueChange').value + "%";
+  document.getElementById('investmentChangeVal').textContent = document.getElementById('investmentChange').value + "%";
+
+
+
+
+  // ---- SIMULAZIONE WHAT-IF ----
+document.getElementById('simulateBtn').addEventListener('click', ()=>{
+  if(!series.length){
+    alert("Carica prima un file XLSX.");
+    return;
+  }
+  const cost = parseFloat(document.getElementById('costChange').value) || 0;
+  const revenue = parseFloat(document.getElementById('revenueChange').value) || 0;
+  const invest = parseFloat(document.getElementById('investmentChange').value) || 0;
+
+  // Calcola scenario simulato: prendiamo la serie di base e modifichiamo
+  const simulated = series.map(v => {
+    let val = v;
+    val = val * (1 + revenue/100);     // aumento ricavi
+    val = val * (1 - cost/100);        // riduzione costi
+    val = val * (1 + invest/200);      // investimenti → effetto attenuato
+    return val;
+  });
+
+  // Mostra testo riepilogo
+  document.getElementById('whatIfOutput').textContent = 
+    `Scenario simulato: costi -${cost}%, ricavi +${revenue}%, investimenti +${invest}%`;
+
+  // Aggiorna grafico con la serie simulata
+  renderChart(series, [], simulated);
+});
+
+// ---- RENDER CHART ----
+function renderChart(history, forecast, simulated=[]){
+  const labels = [];
+  for(let i=1;i<=Math.max(history.length+forecast.length, simulated.length);i++) labels.push(i.toString());
+
+  const ctx = document.getElementById('mlChart').getContext('2d');
+  if(chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Storico',
+          data: history,
+          borderColor: '#0ea5e9',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: 'Forecast',
+          data: Array(history.length).fill(null).concat(forecast),
+          borderColor: '#ef4444',
+          borderWidth: 2,
+          borderDash: [6,6],
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: 'Simulazione',
+          data: simulated.length ? simulated : [],
+          borderColor: '#9333ea',
+          borderWidth: 2,
+          borderDash: [3,3],
+          pointRadius: 0,
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { 
+        x: { title: { display: true, text: 'Periodo' } },
+        y: { title: { display: true, text: seriesName || 'Valore' }, beginAtZero: false }
+      }
+    }
+  });
+}
+
+
+  function showForecastOutput(model, result){
+    const last = series[series.length-1];
+    const next = result.forecast[0] ?? 0;
+    const delta = next - last;
+    document.getElementById('mlForecastOutput').innerHTML = `
+      <div class="space-y-2">
+        <p><strong>Modello:</strong> ${labelModel(model)}</p>
+        <p><strong>Serie:</strong> ${seriesName || 'N/D'} (${series.length} punti)</p>
+        <p><strong>Prossimo periodo:</strong> ${formatMoney(next)} (${delta>=0?'+':''}${formatMoney(delta)} vs ultimo)</p>
+        <p class="text-sm text-slate-500">Orizzonte previsioni: ${result.horizon} periodi.</p>
+      </div>
+    `;
+  }
+
+  function formatMoney(v){
+    if(v===null || isNaN(v)) return "€0";
+    return "€" + Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
+  function labelModel(k){
+    return ({linear:'Linear Regression', poly:'Polynomial (deg=2)', ma:'Media Mobile', arima:'ARIMA(1) simulato'})[k] || k;
+  }
+
+  // ---- MODELLI ----
+  function runModel(kind, y, horizon=6){
+    const n = y.length;
+    const x = Array.from({length:n}, (_,i)=>i+1);
+
+    let forecast = [];
+    if(kind==='linear'){
+      const {m,b} = ols(x,y);
+      for(let h=1; h<=horizon; h++){
+        forecast.push(m*(n+h)+b);
+      }
+    } else if(kind==='poly'){
+      const {a,b,c} = quadFit(x,y);
+      for(let h=1; h<=horizon; h++){
+        const t = n+h;
+        forecast.push(a*t*t + b*t + c);
+      }
+    } else if(kind==='ma'){
+      const w = Math.max(2, Math.min(5, Math.floor(n/5) || 3));
+      const lastMA = movingAverage(y, w).pop() ?? y[n-1];
+      for(let h=1; h<=horizon; h++) forecast.push(lastMA);
+    } else if(kind==='arima'){
+      const phi = ar1(y);
+      let last = y[n-1];
+      for(let h=1; h<=horizon; h++){
+        last = phi*last; // niente drift/errore
+        forecast.push(last);
+      }
+    } else {
+      forecast = Array(horizon).fill(y[n-1]);
+    }
+    return { forecast, horizon };
+  }
+
+  // ---- STAT HELPERS ----
+  function ols(x,y){
+    const n=x.length;
+    const sumx = x.reduce((a,b)=>a+b,0);
+    const sumy = y.reduce((a,b)=>a+b,0);
+    const sumxy= x.reduce((a,xi,i)=>a+xi*y[i],0);
+    const sumx2= x.reduce((a,xi)=>a+xi*xi,0);
+    const m = (n*sumxy - sumx*sumy) / (n*sumx2 - sumx*sumx || 1);
+    const b = (sumy - m*sumx) / n;
+    return {m,b};
+  }
+
+  function quadFit(x,y){
+    const n=x.length;
+    const Sx  = x.reduce((a,b)=>a+b,0);
+    const Sx2 = x.reduce((a,b)=>a+b*b,0);
+    const Sx3 = x.reduce((a,b)=>a+b*b*b,0);
+    const Sx4 = x.reduce((a,b)=>a+b*b*b*b,0);
+    const Sy  = y.reduce((a,b)=>a+b,0);
+    const Sxy = x.reduce((a,xi,i)=>a+xi*y[i],0);
+    const Sx2y= x.reduce((a,xi,i)=>a+xi*xi*y[i],0);
+
+    // Solve [ [Sx4 Sx3 Sx2],[Sx3 Sx2 Sx],[Sx2 Sx n] ] * [a,b,c]^T = [Sx2y, Sxy, Sy]^T
+    const A = [
+      [Sx4, Sx3, Sx2],
+      [Sx3, Sx2, Sx ],
+      [Sx2, Sx , n  ]
+    ];
+    const B = [Sx2y, Sxy, Sy];
+    const [a,b,c] = solve3x3(A,B);
+    return {a,b,c};
+  }
+
+  function solve3x3(A,B){
+    // Gaussian elimination (simple)
+    const M = A.map((row,i)=>row.concat([B[i]])); // augmented
+    const N = 3;
+    for(let i=0;i<N;i++){
+      // pivot
+      let maxRow=i;
+      for(let r=i+1;r<N;r++){
+        if(Math.abs(M[r][i])>Math.abs(M[maxRow][i])) maxRow=r;
+      }
+      if(i!==maxRow){ const tmp=M[i]; M[i]=M[maxRow]; M[maxRow]=tmp; }
+      const pivot = M[i][i] || 1e-12;
+      // normalize row
+      for(let c=i;c<=N;c++) M[i][c]/=pivot;
+      // eliminate
+      for(let r=0;r<N;r++){
+        if(r===i) continue;
+        const f = M[r][i];
+        for(let c=i;c<=N;c++) M[r][c]-=f*M[i][c];
+      }
+    }
+    return [M[0][N], M[1][N], M[2][N]];
+  }
+
+  function movingAverage(arr, w){
+    const out=[];
+    for(let i=0;i<arr.length;i++){
+      if(i+1<w){ out.push(null); continue; }
+      const slice = arr.slice(i-w+1, i+1);
+      out.push(slice.reduce((a,b)=>a+b,0)/w);
+    }
+    return out;
+  }
+
+  function ar1(y){
+    // phi = sum(y_t-1*y_t)/sum(y_t-1^2)
+    let num=0, den=0;
+    for(let t=1;t<y.length;t++){
+      num += y[t-1]*y[t];
+      den += y[t-1]*y[t-1];
+    }
+    return den ? num/den : 0;
+  }
+});
+
+
+  // ---- RESET DATI ----
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    // reset KPI
+    updateKPI(0, 0, 0);
+    // reset file upload
+    const upload = document.getElementById('uploadXlsx');
+    upload.value = '';
+    // reset chart e output
+    renderChart([], []);
+    document.getElementById('mlForecastOutput').innerHTML = `<p class="text-slate-500 text-sm">Dati resettati.</p>`;
+    document.getElementById('whatIfOutput').textContent = '';
+    series = [];
+    seriesName = null;
+  });
+
+  // ---- ESPORTA EXCEL ----
+  document.getElementById('exportExcelBtn').addEventListener('click', () => {
+    const ws = XLSX.utils.json_to_sheet([
+      { KPI: 'Totale Entrate', Value: document.getElementById('kpiRevenue').textContent },
+      { KPI: 'Utile Medio', Value: document.getElementById('kpiProfit').textContent },
+      { KPI: 'Rischio Stimato', Value: document.getElementById('kpiRisk').textContent }
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "KPI Report");
+    XLSX.writeFile(wb, "ML_KPI_Report.xlsx");
+  });
+
+  // ---- ESPORTA PDF ----
+ // PDF
+  document.getElementById('exportPdfBtn').addEventListener('click', () => {
+    const doc = new jspdf.jsPDF(); // usa jspdf.jsPDF() se importato come UMD
+    doc.text("KPI Report", 20, 20);
+    doc.text(`Totale Entrate: ${document.getElementById('kpiRevenue').textContent}`, 20, 40);
+    doc.text(`Utile Medio: ${document.getElementById('kpiProfit').textContent}`, 20, 50);
+    doc.text(`Rischio Stimato: ${document.getElementById('kpiRisk').textContent}`, 20, 60);
+    doc.save("ML_KPI_Report.pdf");
+  });
+
+</script>
+
+<!-- <script src="ml_dashboard_logic.js"></script> -->
+</body>
+</html>

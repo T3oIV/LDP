@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servizi - LDP Tax & Law</title>
+<style>
+:root { --bg-color:#ffffff; --primary-color:#2D7F4B; --text-color:#000000;}
+body { margin:0; font-family:Arial,sans-serif; background:var(--bg-color); color:var(--text-color);}
+header { background:var(--primary-color); color:white; padding:1rem;}
+header h1 { margin:0; font-size:1.8rem;}
+nav { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; position:relative;}
+nav a { color:white; text-decoration:none; font-weight:bold; padding:0.5rem;}
+nav a:hover { text-decoration:underline;}
+.dropdown { position:relative; }
+.dropdown-content {
+  display:none; 
+  position:absolute; 
+  background:#fff; 
+  min-width:180px; 
+  box-shadow:0 4px 6px rgba(0,0,0,0.1); 
+  border-radius:6px;
+  top:100%;
+  left:0;
+  z-index:1000;
+}
+.dropdown-content a {
+  color:#000; 
+  padding:10px 14px; 
+  text-decoration:none; 
+  display:block;
+}
+.dropdown-content a:hover { background:var(--primary-color); color:#fff; }
+.dropdown:hover .dropdown-content { display:block; }
+main { padding:2rem; text-align:center;}
+.card { background:#f8f8f8; padding:2rem; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); max-width:800px; margin:0 auto;}
+footer { background:#f0f0f0; text-align:center; padding:1rem; margin-top:2rem;}
+</style>
+</head>
+<body>
+<header>
+  <h1>LDP Tax & Law</h1>
+  
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow px-6 py-3 flex justify-between items-center">
+  <div class="flex items-center space-x-2">
+    
+
+    <a href="index.html">Home</a>
+    <a href="fatture.html">Fatture</a>
+    <a href="documenti.html">Documenti</a>
+    <a href="profilo.html">Profilo</a>
+    <div class="dropdown">
+      <a href="servizi.html">Servizi ▼</a>
+      <div class="dropdown-content">
+        <a href="legal.html">Legal</a>
+        <a href="tax.html">Tax</a>
+        <a href="payroll.html">Payroll</a>
+        <a href="automation.html">Automation</a>
+        <a href="global.html">Global</a>
+        <a href="corporate-finance.html">Corporate Finance</a>
+        <a href="compliance.html">Compliance</a>
+        <a href="esg.html">ESG</a>
+        <a href="academy.html">Academy</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h2>I nostri servizi</h2>
+    <p>Seleziona un servizio dal menù in alto per scoprire maggiori dettagli.</p>
+  </div>
+</main>
+
+<footer>
+  &copy; 2025 LDP Tax & Law - Tutti i diritti riservati
+</footer>
+</body>
+</html>

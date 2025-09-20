@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <title>Editor PDF in browser — KIT_Assunzione</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+   :root {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --primary-color: #000000;
+      --primary-hover: #B4D4BC;
+      --secondary-color: #eaeaea;
+      --secondary-hover: #dcdcdc;
+      --accent-color: #74ac74;
+      --bg-color: #f9f9f9;
+      --border-color: #ddd;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      background: var(--bg-color);
+      color: #222;
+    }
+
+    #left {
+      width: 42%;
+      min-width: 360px;
+      max-width: 55%;
+      overflow-y: auto;
+      border-right: 1px solid var(--border-color);
+      padding: 24px;
+      box-sizing: border-box;
+      background: #fff;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    }
+
+    #right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: var(--primary-color);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .controls button {
+      padding: 12px 20px;
+      /* altezza uniforme */
+      min-width: 140px;
+      /* larghezza uniforme */
+      border-radius: 8px;
+      border: 1px solid #4CAF50;
+      background-color: #74AC74;
+      color: #000;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      flex: 1;
+      /* permette di distribuire lo spazio equamente */
+    }
+
+    .field {
+      margin: 10px 0;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 6px rgba(3, 102, 214, 0.3);
+      outline: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary-color);
+    }
+
+    button {
+      padding: 12px 20px;
+      /* dimensione uniforme */
+      border-radius: 8px;
+      border: 1px solid #4CAF50;
+      /* bordo verde */
+      background-color: #74AC74;
+      /* verde chiaro */
+      color: #000;
+      /* scritte nere */
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+      /* larghezza minima uniforme */
+      text-align: center;
+    }
+
+    /* Hover effect */
+    button:hover {
+      background-color: #5ea05e;
+      /* verde più scuro */
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    #introScreen button {
+      background-color: #94CC5C;
+      /* mantiene verde più chiaro nel tutorial */
+      color: #fff;
+    }
+
+    #introScreen button:hover {
+      background-color: #74AC74;
+    }
+
+    button.primary {
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+
+    button.primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    button.secondary {
+      background: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+
+    button.secondary:hover {
+      background: var(--secondary-hover);
+    }
+
+    #pdf-canvas {
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      max-width: 100%;
+      height: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #pagesNav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      background: white;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: #A4CCA4;
+      color: rgb(0, 0, 0);
+      border-color: #84C444;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .loader {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Font moderno e colori */
+    #introScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #000;
+    }
+
+    .intro-box {
+      background: white;
+      padding: 28px 32px;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .intro-box h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #74AC74;
+      margin-bottom: 12px;
+    }
+
+    .intro-box p,
+    .intro-box li {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .intro-box ul {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding-left: 20px;
+    }
+
+    .intro-step {
+      animation: fadeIn 0.3s ease;
+    }
+
+    .intro-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      gap: 10px;
+    }
+
+    .intro-buttons button {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .intro-buttons button.primary {
+      background: #94CC5C;
+      color: white;
+      font-weight: 600;
+    }
+
+    .intro-buttons button.primary:hover {
+      background: #74AC74;
+      transform: scale(1.02);
+    }
+
+    .intro-buttons button.secondary {
+      background: #eaeaea;
+      color: #000;
+    }
+
+    .intro-buttons button.secondary:hover {
+      background: #dcdcdc;
+      transform: scale(1.02);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+    <!-- SCHERMATA INTRODUTTIVA MULTI-STEP -->
+
+  <div id="introScreen">
+    <div class="intro-box">
+      <!-- STEP 1 -->
+      <div class="intro-step" data-step="1">
+        <h1>📄 Benvenuto nel KIT Assunzione PDF</h1>
+        <p>Questa applicazione ti permette di compilare il <strong>KIT_Assunzione</strong> direttamente dal browser.</p>
+        <div class="intro-buttons">
+          <button id="skipIntro" class="secondary">Salta</button>
+          <button id="nextIntro" class="primary">Avanti ➡️</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="intro-step" data-step="2" style="display:none;">
+        <h1>🛠️ Come Funziona</h1>
+        <ul>
+          <li>📥 Il PDF viene caricato automaticamente</li>
+          <li>✏️ Compila i campi a sinistra</li>
+          <li>🔄 Premi <strong>Aggiorna PDF</strong> per vedere l’anteprima</li>
+          <li>✅ Verifica il Codice Fiscale</li>
+          <li>💾 Clicca il pulsante Avanti per procedere alla firma</li>
+        </ul>
+        <div class="intro-buttons">
+          <button id="prevIntro" class="secondary">⬅️ Indietro</button>
+          <button id="closeIntro" class="primary">Inizia</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="left">
+    <h1>Editor Form HTML (campi estratti dal PDF)</h1>
+    <div class="controls">
+      <button id="aggiorna" class="primary">Aggiorna PDF</button>
+      <button id="scarica">Scarica PDF</button>
+      <div style="flex:1"></div>
+      <span id="status" class="small"></span>
+    </div>
+
+    <!-- Container dinamico dei campi -->
+    <div id="formContainer">
+      <p class="loader">Caricamento campi dal PDF… attendere</p>
+    </div>
+  </div>
+
+  <div id="right">
+    <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+      <div id="pagesNav">
+        <button id="prevPage">&larr;</button>
+        <span id="pageInfo" class="small">— / —</span>
+        <button id="nextPage">&rarr;</button>
+      </div>
+      <div>
+        <label class="small">Scala anteprima:
+          <select id="scaleSelect">
+            <option value="0.9">90%</option>
+            <option value="1.1" selected>110%</option>
+            <option value="1.3">130%</option>
+            <option value="1.6">160%</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <canvas id="pdf-canvas"></canvas>
+    <div class="small" style="opacity:0.8; margin-top:6px">Anteprima: pagina <span id="curPage">1</span> / <span id="pageCount">1</span></div>
+  </div>
+
+  <!-- pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script type="module">
+
+    // --- INTRO SCREEN HANDLERS ---
+const introScreen = document.getElementById('introScreen');
+const steps = introScreen.querySelectorAll('.intro-step');
+const nextIntroBtn = document.getElementById('nextIntro');
+const skipIntroBtn = document.getElementById('skipIntro');
+const prevIntroBtn = document.getElementById('prevIntro');
+const closeIntroBtn = document.getElementById('closeIntro');
+
+function showStep(stepNumber) {
+  steps.forEach(step => {
+    step.style.display = step.dataset.step === String(stepNumber) ? 'block' : 'none';
+  });
+}
+
+// Avanti → vai allo step 2
+nextIntroBtn.addEventListener('click', () => {
+  showStep(2);
+});
+
+// Salta → chiudi direttamente l'intro
+skipIntroBtn.addEventListener('click', () => {
+  introScreen.style.display = 'none';
+});
+
+// Indietro → torna allo step 1
+prevIntroBtn.addEventListener('click', () => {
+  showStep(1);
+});
+
+// Inizia → chiudi intro
+closeIntroBtn.addEventListener('click', () => {
+  introScreen.style.display = 'none';
+});
+
+
+    import { PDFDocument, PDFName } from 'https://cdn.skypack.dev/pdf-lib';
+
+    // Nome del PDF (deve essere nella stessa cartella)
+    const PDF_FILE = "KIT_Assunzione_editabile1.pdf";
+
+    // DOM
+    const formContainer = document.getElementById('formContainer');
+    const statusEl = document.getElementById('status');
+    const aggiornaBtn = document.getElementById('aggiorna');
+    const scaricaBtn = document.getElementById('scarica');
+    const canvas = document.getElementById('pdf-canvas');
+    const ctx = canvas.getContext('2d');
+    const pageInfo = document.getElementById('pageInfo');
+    const curPageEl = document.getElementById('curPage');
+    const pageCountEl = document.getElementById('pageCount');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const scaleSelect = document.getElementById('scaleSelect');
+
+    // stato
+    let originalPdfBytes = null;
+    let renderedPdfBytes = null;
+    let pdfForRenderBytes = null;
+    let pdfDocLib = null; // oggetto pdf-lib (caricato al momento della generazione)
+    let pdfjsDoc = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let scale = parseFloat(scaleSelect.value);
+
+    // mappa: fieldName -> inputElement
+    const fieldInputs = new Map();
+
+    // utility: safe text for id
+    function safeId(name) {
+      return 'f_' + name.replace(/[^\w\-]/g,'_');
+    }
+
+    // carica il PDF originale bytes
+    async function loadOriginalPdf() {
+      statusEl.textContent = "Caricamento PDF...";
+      originalPdfBytes = await fetch(PDF_FILE).then(r => {
+        if (!r.ok) throw new Error("Impossibile caricare " + PDF_FILE + " (controlla il percorso)");
+        return r.arrayBuffer();
+      });
+      pdfForRenderBytes = originalPdfBytes.slice(0);
+      statusEl.textContent = "PDF caricato";
+    }
+
+    // rende un'anteprima (usa pdf.js)
+    async function renderWithPdfJs(bytes, pageNum = 1, scaleVal = 1.1) {
+      try {
+        if (pdfjsDoc) {
+          // revoke previous doc? pdf.js ensures new doc if changed
+        }
+        const loadingTask = window['pdfjsLib'].getDocument({data: bytes});
+        pdfjsDoc = await loadingTask.promise;
+        totalPages = pdfjsDoc.numPages;
+        pageCountEl.textContent = totalPages;
+        pageNum = Math.min(Math.max(1, pageNum), totalPages);
+        const page = await pdfjsDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: scaleVal });
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        curPageEl.textContent = pageNum;
+        pageInfo.textContent = `${pageNum} / ${totalPages}`;
+      } catch (err) {
+        console.error("Errore render: ", err);
+      }
+    }
+
+    // build dynamic form from pdf-lib fields (scopre i campi al volo)
+    async function buildFormFromPdf() {
+      formContainer.innerHTML = "<p class='loader'>Analisi dei campi del PDF…</p>";
+      // carica con pdf-lib per ottenere form fields
+      const pdfDoc = await PDFDocument.load(originalPdfBytes);
+      const form = pdfDoc.getForm();
+      const fields = form.getFields();
+      formContainer.innerHTML = ""; // pulisco
+
+      if (fields.length === 0) {
+        formContainer.innerHTML = "<p>Nessun campo compilabile trovato nel PDF.</p>";
+        return;
+      }
+
+      // dividerò in sezioni automatiche (per rendere il form leggibile)
+      const sec = document.createElement('div');
+      sec.className = 'section';
+      const secTitle = document.createElement('h2');
+      secTitle.textContent = 'Campi estratti';
+      sec.appendChild(secTitle);
+
+      // per ogni field genero un input appropriato
+      for (const f of fields) {
+        // getName disponibile
+        const name = String(f.getName());
+        const id = safeId(name);
+        const container = document.createElement('div');
+        container.className = 'field';
+
+        // Determine field type via constructor name or acroField type
+        const ctorName = f.constructor.name; // PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown, PDFButton
+        const label = document.createElement('label');
+        label.textContent = name;
+        label.htmlFor = id;
+
+        // create input based on ctorName
+        if (ctorName === 'PDFTextField') {
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.id = id;
+          inp.dataset.fieldName = name;
+          inp.placeholder = name;
+          container.appendChild(label);
+          container.appendChild(inp);
+          fieldInputs.set(name, inp);
+
+        } else if (ctorName === 'PDFCheckBox') {
+          const row = document.createElement('div');
+          row.className = 'checkbox-row';
+          const inp = document.createElement('input');
+          inp.type = 'checkbox';
+          inp.id = id;
+          inp.dataset.fieldName = name;
+          const lb = document.createElement('label');
+          lb.htmlFor = id;
+          lb.textContent = name;
+          row.appendChild(inp);
+          row.appendChild(lb);
+          container.appendChild(row);
+          fieldInputs.set(name, inp);
+
+        } else if (ctorName === 'PDFRadioGroup') {
+          // radio groups: getOptions isn't available directly; we'll create a text input for selection,
+          // plus a small hint (user can type option value). We'll also try to read kids to know values.
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.id = id;
+          inp.dataset.fieldName = name;
+          inp.placeholder = 'Valore radio (es. Scelta1)';
+          container.appendChild(label);
+          container.appendChild(inp);
+          fieldInputs.set(name, inp);
+
+        } else if (ctorName === 'PDFDropdown') {
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.id = id;
+          inp.dataset.fieldName = name;
+          inp.placeholder = 'Valore dropdown';
+          container.appendChild(label);
+          container.appendChild(inp);
+          fieldInputs.set(name, inp);
+
+        } else {
+          // fallback: treat as text
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.id = id;
+          inp.dataset.fieldName = name;
+          inp.placeholder = name;
+          container.appendChild(label);
+          container.appendChild(inp);
+          fieldInputs.set(name, inp);
+        }
+
+        sec.appendChild(container);
+      }
+
+      formContainer.appendChild(sec);
+
+      // status
+      statusEl.textContent = `Campi trovati: ${fields.length}`;
+    }
+
+    // Aggiorna PDF in memoria prendendo i valori dagli input dinamici
+    async function updatePdfFromForm() {
+      statusEl.textContent = "Generazione PDF compilato in memoria…";
+      // Carico pdf-lib a runtime (nuova istanza) partendo dall'originale
+      const pdfDoc = await PDFDocument.load(originalPdfBytes);
+      const form = pdfDoc.getForm();
+      // per ogni campo mappato cerco di impostare il valore
+      for (const [fieldName, inputEl] of fieldInputs.entries()) {
+        try {
+          // prova a ottenere campo concreto dal form (usa name esatto)
+          const field = form.getFieldMaybe ? form.getFieldMaybe(fieldName) : (() => {
+            try { return form.getTextField(fieldName); } catch(e) {}
+            try { return form.getCheckBox(fieldName); } catch(e) {}
+            try { return form.getRadioGroup(fieldName); } catch(e) {}
+            try { return form.getDropdown(fieldName); } catch(e) {}
+            return null;
+          })();
+
+          // fallback: use getFields and match by name
+          let target = field;
+          if (!target) {
+            // try searching in getFields
+            const fields = form.getFields();
+            for (const f of fields) {
+              if (String(f.getName()) === fieldName) { target = f; break; }
+            }
+          }
+
+          if (!target) {
+            // non trovato; ignoro
+            continue;
+          }
+
+          const ctorName = target.constructor.name;
+          if (ctorName === 'PDFTextField') {
+            // support textarea content length: setText requires string
+            const v = inputEl.value ?? '';
+            target.setText(String(v));
+          } else if (ctorName === 'PDFCheckBox') {
+            if (inputEl.checked) target.check();
+            else target.uncheck();
+          } else if (ctorName === 'PDFRadioGroup') {
+            // for radio group we set by value typed by user
+            const v = inputEl.value ?? '';
+            if (v !== '') {
+              try { target.select(String(v)); } catch(e) { /* ignore wrong value */ }
+            }
+          } else if (ctorName === 'PDFDropdown') {
+            const v = inputEl.value ?? '';
+            if (v !== '') {
+              try { target.select(String(v)); } catch(e) { /* ignore */ }
+            }
+          } else {
+            // fallback - try setText if available
+            try { target.setText(String(inputEl.value ?? '')); } catch(e) { /* ignore */ }
+          }
+        } catch (err) {
+          console.warn("Errore impostando campo", fieldName, err);
+        }
+      }
+
+      // flatten per rendere i campi parte del contenuto (non editabili)
+      try { form.flatten(); } catch(e) { console.warn("flatten non supportato? ", e); }
+
+      const newBytes = await pdfDoc.save();
+      renderedPdfBytes = newBytes;
+      pdfForRenderBytes = newBytes;
+      statusEl.textContent = "PDF aggiornato (in memoria). Anteprima aggiornata.";
+      // render first page by default
+      currentPage = Math.min(currentPage, totalPages);
+      await renderWithPdfJs(pdfForRenderBytes, currentPage, scale);
+    }
+
+    // Scarica il PDF renderizzato (compilato)
+    function downloadCompiledPdf() {
+      if (!renderedPdfBytes) {
+        statusEl.textContent = "Nessun PDF compilato in memoria. Premi 'Aggiorna PDF' prima.";
+        return;
+      }
+      const blob = new Blob([renderedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "KIT_Assunzione_compilato.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // NAV controls
+    prevPageBtn.addEventListener('click', async () => {
+      if (!pdfjsDoc) return;
+      currentPage = Math.max(1, currentPage - 1);
+      await renderWithPdfJs(pdfForRenderBytes || originalPdfBytes, currentPage, scale);
+    });
+    nextPageBtn.addEventListener('click', async () => {
+      if (!pdfjsDoc) return;
+      currentPage = Math.min(totalPages, currentPage + 1);
+      await renderWithPdfJs(pdfForRenderBytes || originalPdfBytes, currentPage, scale);
+    });
+    scaleSelect.addEventListener('change', async (e) => {
+      scale = parseFloat(e.target.value);
+      await renderWithPdfJs(pdfForRenderBytes || originalPdfBytes, currentPage, scale);
+    });
+
+    // bottone aggiorna
+    aggiornaBtn.addEventListener('click', async () => {
+      aggiornaBtn.disabled = true;
+      scaricaBtn.disabled = true;
+      try {
+        await updatePdfFromForm();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Errore durante l'aggiornamento del PDF: " + (err.message || err);
+      } finally {
+        aggiornaBtn.disabled = false;
+        scaricaBtn.disabled = false;
+      }
+    });
+
+    scaricaBtn.addEventListener('click', downloadCompiledPdf);
+
+    // start: carica pdf, costruisce form e renderizza la prima pagina
+    (async () => {
+      try {
+        await loadOriginalPdf();
+        await buildFormFromPdf();
+        await renderWithPdfJs(originalPdfBytes, 1, scale);
+      } catch (err) {
+        console.error(err);
+        formContainer.innerHTML = `<p style="color:crimson">Errore: ${err.message}</p>`;
+        statusEl.textContent = "Errore nel caricamento. Controlla console.";
+      }
+    })();
+
+  </script>
+</body>
+</html>

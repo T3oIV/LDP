@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Consulenza Legale & Fiscale — Platform</title>
+  <meta name="description"
+    content="Piattaforma di consulenza legale e fiscale - accesso obbligatorio per il piano base, piani premium con dashboard e dati avanzati.">
+
+  <!-- ✅ Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .nav-link {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0%;
+      height: 2px;
+      background: #059669;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-link.active {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    #home-boarding {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #0366d6;
+      background-color: #0366d6;
+      color: white;
+      cursor: pointer;
+    }
+
+    #home-boarding:hover {
+      background-color: #024ea1;
+    }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = { /* config qui */ };
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<!-- === IMPORTA GOOGLE FONT & ICONS === -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+
+
+<!-- === ONBOARDING MODAL === -->
+<div id="onboarding-overlay" class="fixed inset-0 flex items-center justify-center z-50"
+     style="font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #B4DC8C, #A4CCA4);">
+  <div class="w-full max-w-lg rounded-3xl shadow-2xl p-8 relative border"
+       style="background-color: #DCF4D4; border-color: #B4DC8C;">
+    
+    <!-- HEADER -->
+    <div class="absolute top-4 right-6">
+      <button id="btn-skip" class="text-sm font-semibold tracking-wide"
+              style="color:#000000; background:none; border:none;">
+        Salta
+      </button>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="onboarding-step" data-step="1">
+      <div class="flex flex-col items-center text-center">
+        <i class="fa-solid fa-handshake text-5xl mb-4" style="color:#94CC5C;"></i>
+        <h2 class="text-3xl font-bold mb-2" style="color:#94CC5C;">Benvenuto su ConsulenzaLab</h2>
+        <p class="text-lg leading-relaxed" style="color:black;">
+          La nostra piattaforma ti aiuta a gestire consulenze legali e fiscali in un unico spazio digitale.
+        </p>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="onboarding-step hidden" data-step="2">
+      <div class="flex flex-col items-center text-center">
+        <i class="fa-solid fa-chart-line text-5xl mb-4" style="color:#94CC5C;"></i>
+        <h2 class="text-3xl font-bold mb-2" style="color:#94CC5C;">Dashboard Interattiva</h2>
+        <p class="text-lg leading-relaxed" style="color:black;">
+          Visualizza dati, report e scadenze in tempo reale grazie alla nostra dashboard intelligente.
+        </p>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="onboarding-step hidden" data-step="3">
+      <div class="flex flex-col items-center text-center">
+        <i class="fa-solid fa-crown text-5xl mb-4" style="color:#94CC5C;"></i>
+        <h2 class="text-3xl font-bold mb-2" style="color:#94CC5C;">Piani Personalizzati</h2>
+        <p class="text-lg leading-relaxed" style="color:black;">
+          Inizia gratis e passa ai piani premium per sbloccare funzionalità avanzate e analisi approfondite.
+        </p>
+      </div>
+    </div>
+
+    <!-- CONTROLLI -->
+    <div class="flex justify-between items-center mt-8">
+      <button id="btn-prev" class="px-5 py-2 rounded-xl text-sm font-medium hidden transition"
+              style="background-color:#B0B0B0; color:rgb(0, 0, 0);">
+        <i class="fa-solid fa-arrow-left mr-1"></i> Indietro
+      </button>
+      <button id="btn-next" class="px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition ml-auto"
+              style="background-color:#94CC5C; color:rgb(0, 0, 0);">
+        Avanti <i class="fa-solid fa-arrow-right ml-1"></i>
+      </button>
+    </div>
+
+    <!-- INDICATORI DI PROGRESSO -->
+    <div class="flex justify-center gap-2 mt-6">
+      <span class="step-indicator w-3 h-3 rounded-full" style="background-color:#94CC5C;"></span>
+      <span class="step-indicator w-3 h-3 rounded-full" style="background-color:#B0B0B0;"></span>
+      <span class="step-indicator w-3 h-3 rounded-full" style="background-color:#B0B0B0;"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("onboarding-overlay");
+    const steps = document.querySelectorAll(".onboarding-step");
+    const indicators = document.querySelectorAll(".step-indicator");
+    const btnNext = document.getElementById("btn-next");
+    const btnPrev = document.getElementById("btn-prev");
+    const btnSkip = document.getElementById("btn-skip");
+    let currentStep = 0;
+
+    function showStep(step) {
+      steps.forEach((s, i) => s.classList.toggle("hidden", i !== step));
+      indicators.forEach((dot, i) => {
+        dot.style.backgroundColor = i === step ? "#94CC5C" : "#B0B0B0";
+      });
+      btnPrev.classList.toggle("hidden", step === 0);
+      btnNext.innerHTML = step === steps.length - 1 
+        ? `Inizia <i class="fa-solid fa-check ml-1"></i>` 
+        : `Avanti <i class="fa-solid fa-arrow-right ml-1"></i>`;
+    }
+
+    btnNext.addEventListener("click", () => {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+      } else {
+        closeOnboarding();
+      }
+    });
+
+    btnPrev.addEventListener("click", () => {
+      if (currentStep > 0) {
+        currentStep--;
+        showStep(currentStep);
+      }
+    });
+
+    btnSkip.addEventListener("click", closeOnboarding);
+
+    function closeOnboarding() {
+      overlay.classList.add("hidden");
+    }
+
+    showStep(currentStep);
+  });
+</script>
+
+
+  <!-- HEADER / NAVBAR -->
+  <header class="bg-white/80 backdrop-blur-md border-b shadow sticky top-0 z-50">
+    <div class="container d-flex justify-content-between align-items-center py-3">
+      <!-- Logo -->
+      <a href="powerbi.html" class="d-flex align-items-center gap-3 text-decoration-none">
+        <div>
+          <div class="fw-semibold fs-5 text-dark">ConsulenzaLab</div>
+          <div class="text-muted small">Legale · Fiscale · Dati</div>
+        </div>
+      </a>
+
+
+      <!-- Desktop nav -->
+      <nav class="d-none d-md-flex align-items-center gap-4 text-sm fw-medium">
+        <div class="dropdown">
+          <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Servizi
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="legal.html">Legal</a></li>
+            <li><a class="dropdown-item" href="tax.html">Tax</a></li>
+            <li><a class="dropdown-item" href="payroll.html">Payroll</a></li>
+            <li><a class="dropdown-item" href="automation.html">Automation</a></li>
+            <li><a class="dropdown-item" href="global.html">Global</a></li>
+            <li><a class="dropdown-item" href="corporate-finance.html">Corporate Finance</a></li>
+            <li><a class="dropdown-item" href="compliance.html">Compliance</a></li>
+            <li><a class="dropdown-item" href="esg.html">ESG</a></li>
+            <li><a class="dropdown-item" href="academy.html">Academy</a></li>
+          </ul>
+        </div>
+        <a href="progetti.html" class="nav-link">Progetti</a>
+        <a href="fatture.html" class="nav-link">Fatture</a>
+        <a href="documenti.html" class="nav-link">Documenti</a>
+        <a href="profilo.html" class="nav-link">Profilo</a>
+
+      </nav>
+
+      <!-- Auth area -->
+      <div id="auth-area" class="d-flex align-items-center gap-3">
+        <a href="#" id="btn-open-login" class="btn btn-success">Accedi / Registrati</a>
+      </div>
+
+      <!-- Mobile menu toggle -->
+      <div class="d-md-none">
+        <button id="mobile-toggle" class="btn btn-light shadow-sm" aria-label="Apri menu">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Servizi Section -->
+  <section class="mt-12 max-w-7xl mx-auto px-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 justify-items-center">
+
+      <!-- Dashboard -->
+      <a href="powerbi.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-sky-600 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-sky-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-sky-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <rect x="3" y="11" width="4" height="7" rx="1" ry="1" />
+            <rect x="9" y="7" width="4" height="11" rx="1" ry="1" />
+            <rect x="15" y="4" width="4" height="14" rx="1" ry="1" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">Dashboard</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-500">
+          Visualizza dati, report e statistiche in tempo reale.
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+          animation-delay: 0.5s;
+          /* ritardo di 0.5 secondi */
+        }
+
+        .delay-500 {
+          animation-delay: 0.5s;
+        }
+      </style>
+
+
+      <!-- Machine Learning -->
+      <a href="ml.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-green-600 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-green-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <circle cx="12" cy="12" r="3" stroke-width="2" />
+            <line x1="12" y1="3" x2="12" y2="9" stroke-width="2" />
+            <line x1="12" y1="15" x2="12" y2="21" stroke-width="2" />
+            <line x1="3" y1="12" x2="9" y2="12" stroke-width="2" />
+            <line x1="15" y1="12" x2="21" y2="12" stroke-width="2" />
+            <circle cx="18" cy="6" r="1" fill="currentColor" />
+            <circle cx="6" cy="18" r="1" fill="currentColor" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">Machine Learning</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-700">
+          Analizza dati complessi con modelli predittivi e algoritmi avanzati.
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+        }
+
+        .delay-700 {
+          animation-delay: 0.7s;
+          /* comparsa dopo 0,7 secondi */
+        }
+      </style>
+
+
+      <!-- AI Reports -->
+      <a href="ai-reports.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-amber-500 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-amber-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-amber-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" />
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">AI Reports</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-900">
+          Report intelligenti basati su intelligenza artificiale e analisi predittive.
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+        }
+
+        .delay-900 {
+          animation-delay: 0.9s;
+          /* comparsa dopo 0,9 secondi */
+        }
+      </style>
+
+    </div>
+  </section>
+
+
+
+  <!-- ================== SEZIONE NAVIGAZIONE ================== -->
+
+<a href="pdf.html"
+   class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-indigo-600 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+  <div class="w-24 h-24 flex items-center justify-center bg-indigo-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m-6 0H7m6 0v6" />
+    </svg>
+  </div>
+
+  <span class="font-semibold text-lg md:text-xl">Home-boarding</span>
+  <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-1500">Inizia il tuo onboarding cliente.</p>
+</a>
+
+
+  <section class="mt-12 max-w-7xl mx-auto px-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 justify-items-center">
+
+      <!-- Fatture -->
+      <a href="fatture.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-sky-600 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-sky-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-sky-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M9 17v-6h6v6m2 0H7a2 2 0 01-2-2V7a2 2 0 012-2h6l6 6v4a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">Fatture</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-1100">
+          Visualizza le tue fatture.
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+        }
+
+        .delay-1100 {
+          animation-delay: 1.1s;
+          /* comparsa dopo 1,1 secondi */
+        }
+      </style>
+
+
+      <!-- Documenti -->
+      <a href="documenti.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-green-600 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-green-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M7 7h10M7 11h10M7 15h10M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">Documenti</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-1300">
+          Visualizza i tuoi documenti.
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+        }
+
+        .delay-1300 {
+          animation-delay: 1.3s;
+          /* comparsa dopo 1,3 secondi */
+        }
+      </style>
+
+
+      <!-- Profilo -->
+      <a href="profilo.html"
+        class="flex flex-col items-center gap-4 text-center text-slate-800 hover:text-amber-500 transition-transform transform hover:-translate-y-2 hover:scale-105">
+
+        <div
+          class="w-24 h-24 flex items-center justify-center bg-amber-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-amber-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M5.121 17.804A9 9 0 1118.88 6.196 9 9 0 015.12 17.804zM12 14a4 4 0 100-8 4 4 0 000 8z" />
+          </svg>
+        </div>
+
+        <span class="font-semibold text-lg md:text-xl">Profilo</span>
+
+        <!-- Testo con comparsa ritardata -->
+        <p class="text-sm md:text-base text-slate-600 mt-1 opacity-0 animate-fadeIn delay-1500">
+          Accedi al tuo profilo
+        </p>
+
+      </a>
+
+      <!-- Animazioni Tailwind personalizzate -->
+      <style>
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s forwards;
+        }
+
+        .delay-1500 {
+          animation-delay: 1.5s;
+          /* comparsa dopo 1,5 secondi */
+        }
+      </style>
+
+
+    </div>
+
+  </section>
+
+
+
+  <!-- FEATURES -->
+  <section id="features" class="mt-20">
+    <h2 class="text-3xl font-bold text-center text-slate-900">Cosa offriamo</h2>
+    <div class="mt-10 grid md:grid-cols-3 gap-8">
+      <div class="p-6 rounded-xl bg-white shadow hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-sky-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <h4 class="font-semibold text-lg">Servizi base</h4>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">
+          Accesso previa registrazione: check list, documenti template, consulenza preliminare.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-xl bg-white shadow hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2V5a2 2 0 00-2-2H9l-2 2H5a2 2 0 00-2 2v12a2 2 0 002 2h2z" />
+          </svg>
+          <h4 class="font-semibold text-lg">Dati & Analisi</h4>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">
+          Report fiscali, trend, valutazioni di rischio in dashboard interattiva.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-xl bg-white shadow hover:shadow-lg transition">
+        <div class="flex items-center gap-3 mb-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 14h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h4 class="font-semibold text-lg">Consulenze dedicate</h4>
+        </div>
+        <p class="text-sm text-slate-600 mt-2">
+          Sessioni con esperti, documentazione dedicata e supporto prioritario.
+        </p>
+      </div>
+    </div>
+  </section>
+  </main>
+
+
+  <!-- ================== SEZIONE COLLAGE MIGLIORATO ================== -->
+  <section class="mt-20 max-w-7xl mx-auto px-6 relative">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-center text-slate-900 mb-12">
+      Scopri la Nostra Visione
+    </h2>
+
+    <div class="relative flex flex-wrap justify-center gap-8">
+
+      <!-- Card 1 -->
+      <div
+        class="relative w-full sm:w-3/4 md:w-[48%] lg:w-[30%] shadow-2xl rounded-2xl overflow-hidden transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 bg-white">
+        <img src="images/immagine1.png" alt="Progetto in corso" loading="lazy"
+          class="w-full h-72 object-cover transition-transform duration-500 hover:scale-110 filter contrast-110 saturate-110">
+        <div
+          class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+          <p class="text-white text-xl font-semibold italic">Homepage</p>
+        </div>
+      </div>
+
+
+      <!-- Card 2 -->
+      <div
+        class="relative w-full sm:w-3/4 md:w-[48%] lg:w-[30%] shadow-2xl rounded-2xl overflow-hidden transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 bg-white">
+        <img src="images/immagine2.png" alt="Progetto in corso" loading="lazy"
+          class="w-full h-72 object-cover transition-transform duration-500 hover:scale-110 filter contrast-110 saturate-110">
+        <div
+          class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+          <p class="text-white text-xl font-semibold italic">Smartworking</p>
+        </div>
+      </div>
+
+
+      <!-- Card 3 -->
+      <div
+        class="relative w-full sm:w-3/4 md:w-[48%] lg:w-[30%] shadow-2xl rounded-2xl overflow-hidden transform rotate-[-2deg] hover:rotate-0 transition-all duration-500 bg-white">
+        <img src="images/immagine3.png" alt="Progetto in corso" loading="lazy"
+          class="w-full h-72 object-cover transition-transform duration-500 hover:scale-110 filter contrast-110 saturate-110">
+        <div
+          class="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+          <p class="text-white text-xl font-semibold italic">Ferie e Permessi</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <script>
+    // Reindirizza alla pagina di login
+    function goToLogin() {
+      alert("Reindirizzamento alla pagina di login...");
+      // Sostituisci con il vero URL della pagina di login
+      window.location.href = "/login.html";
+    }
+
+    // Reindirizza al checkout per un piano specifico
+    function goToCheckout(plan) {
+      alert("Checkout per piano: " + plan);
+      // Sostituisci con il vero URL di checkout o integrazione Stripe
+      window.location.href = "/checkout?plan=" + encodeURIComponent(plan);
+    }
+  </script>
+
+
+  <section id="resources" class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <!-- Titolo generale -->
+      <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12 text-slate-800">Risorse e Opinioni</h2>
+
+      <!-- Blog legale-fiscale -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-8 text-slate-700">Blog & Approfondimenti</h3>
+        <div class="grid md:grid-cols-3 gap-8">
+          <article class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+            <h4 class="font-semibold text-lg mb-3 text-slate-800">Guida fiscale 2025</h4>
+            <p class="text-sm text-slate-600 mb-4">Scopri le novità fiscali e come ottimizzare la dichiarazione dei
+              redditi.</p>
+            <a href="blog-guida-fiscale-2025.html" href="#" class="text-sky-600 font-medium hover:underline">Leggi
+              articolo →</a>
+          </article>
+
+          <article class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+            <h4 class="font-semibold text-lg mb-3 text-slate-800">Contratti digitali sicuri</h4>
+            <p class="text-sm text-slate-600 mb-4">Come redigere contratti online e rispettare le normative vigenti.</p>
+            <a href="blog-contratti-digitali.html" href="#" class="text-sky-600 font-medium hover:underline">Leggi
+              articolo →</a>
+          </article>
+
+          <article class="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition transform hover:-translate-y-1">
+            <h4 class="font-semibold text-lg mb-3 text-slate-800">Ottimizza la contabilità</h4>
+            <p class="text-sm text-slate-600 mb-4">Strumenti e best practice per gestire contabilità e report
+              finanziari.</p>
+            <a href="blog-ottimizza-contabilita.html" href="#" class="text-sky-600 font-medium hover:underline">Leggi
+              articolo →</a>
+          </article>
+        </div>
+      </div>
+
+      <!-- ================== TESTIMONIALS INTERATTIVI ================== -->
+
+      <div class="mb-16">
+        <h3 class="text-2xl font-semibold mb-8 text-slate-700 text-center">Cosa dicono i nostri clienti</h3>
+
+        <!-- Carousel Bootstrap -->
+        <div id="carouselTestimonials" class="carousel slide mx-auto max-w-3xl" data-bs-ride="carousel">
+          <div class="carousel-inner">
+
+            <div class="carousel-item active">
+              <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+                <p class="text-slate-600 italic">"Grazie a ConsulenzaLab abbiamo ottimizzato i report fiscali e ridotto
+                  i
+                  tempi di gestione."</p>
+                <p class="mt-3 font-semibold text-slate-800">— Studio Rossi</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+                <p class="text-slate-600 italic">"I grafici interattivi e i reminder hanno reso semplice seguire tutte
+                  le
+                  scadenze aziendali."</p>
+                <p class="mt-3 font-semibold text-slate-800">— Azienda Alfa</p>
+              </div>
+            </div>
+
+            <div class="carousel-item">
+              <div class="bg-white rounded-2xl shadow-md p-6 text-center">
+                <p class="text-slate-600 italic">"Supporto rapido e dashboard intuitiva: ci ha fatto risparmiare ore di
+                  lavoro
+                  ogni settimana."</p>
+                <p class="mt-3 font-semibold text-slate-800">— Beta Consulting</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Controlli -->
+          <button class="carousel-control-prev custom-arrow" type="button" data-bs-target="#carouselTestimonials"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Precedente</span>
+          </button>
+          <button class="carousel-control-next custom-arrow" type="button" data-bs-target="#carouselTestimonials"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Successivo</span>
+          </button>
+        </div>
+      </div>
+
+      <style>
+        /* FRECce più piccole e minimal */
+        .custom-arrow {
+          width: 30px;
+          height: 30px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+          background-size: 60% 60%;
+          filter: invert(1);
+          /* le rende bianche su sfondo scuro */
+        }
+
+        .custom-arrow:hover {
+          transform: translateY(-50%) scale(1.1);
+          transition: transform 0.2s ease;
+        }
+      </style>
+
+
+      <!-- ================== FAQ INTERATTIVA CON ANIMAZIONE ================== -->
+      <div>
+        <h3 class="text-2xl font-semibold mb-6 text-slate-700">FAQ</h3>
+        <input type="text" id="faqFilter" placeholder="Cerca domanda..."
+          class="w-full p-3 border border-slate-300 rounded-lg mb-6 shadow-sm focus:ring-2 focus:ring-sky-400 focus:outline-none"
+          onkeyup="filterFAQ()">
+
+        <div class="space-y-4" id="faqItems">
+          <details
+            class="faq-item p-5 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">
+            <summary class="font-medium cursor-pointer text-slate-800">Devo pagare per usare qualcosa?</summary>
+            <div class="faq-content mt-2 text-sm text-slate-600">Il piano Base è gratuito ma richiede registrazione. I
+              piani a
+              pagamento sbloccano funzionalità avanzate.</div>
+          </details>
+
+          <details
+            class="faq-item p-5 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">
+            <summary class="font-medium cursor-pointer text-slate-800">Come funziona la dashboard?</summary>
+            <div class="faq-content mt-2 text-sm text-slate-600">La dashboard mostra report, grafici
+              personalizzati.</div>
+          </details>
+
+          <details
+            class="faq-item p-5 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all duration-300">
+            <summary class="font-medium cursor-pointer text-slate-800">Posso cambiare piano in qualsiasi momento?
+            </summary>
+            <div class="faq-content mt-2 text-sm text-slate-600">Sì, puoi passare a un piano superiore direttamente
+              dalla
+              dashboard o dalle impostazioni.</div>
+          </details>
+        </div>
+      </div>
+
+      <script>
+        // Filtro FAQ
+        function filterFAQ() {
+          const input = document.getElementById('faqFilter').value.toLowerCase();
+          const items = document.querySelectorAll('#faqItems .faq-item');
+          items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(input) ? '' : 'none';
+          });
+        }
+
+        // Animazione apertura FAQ
+        document.querySelectorAll('.faq-item').forEach(faq => {
+          faq.addEventListener('toggle', () => {
+            const content = faq.querySelector('.faq-content');
+            if (faq.open) {
+              content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+              content.style.maxHeight = "0";
+            }
+          });
+        });
+      </script>
+
+      <style>
+        /* Animazione FAQ */
+        .faq-content {
+          overflow: hidden;
+          max-height: 0;
+          transition: max-height 0.3s ease;
+        }
+      </style>
+
+
+      <!-- FOOTER -->
+      <footer class="bg-dark text-white text-center py-4">
+        <p class="mb-0">&copy; 2025 ConsulenzaLab — Tutti i diritti riservati</p>
+      </footer>
+
+
+
+      <!-- CHART -->
+      <script>
+        const ctx = document.getElementById('userChart');
+        const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+
+        // Dati iniziali per ogni anno
+        const datasets = {
+          2024: [10, 12, 15, 18, 25, 28, 30, 35, 40, 42, 44, 50],
+          2025: [12, 15, 17, 21, 27, 30, 33, 36, 38, 41, 0, 0]
+        };
+
+        const colors = {
+          2024: 'rgba(59, 130, 246, 0.8)', // blu
+          2025: 'rgba(16, 185, 129, 0.8)'  // verde
+        };
+
+        const currentYear = new Date().getFullYear();
+
+        const userChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: months,
+            datasets: Object.keys(datasets).map(year => ({
+              label: year,
+              data: [...datasets[year]],
+              fill: true,
+              borderColor: colors[year],
+              backgroundColor: colors[year].replace('0.8', '0.1'),
+              tension: 0.3
+            }))
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+              y: { beginAtZero: true, title: { display: true, text: 'Numero Clienti' } }
+            }
+          }
+        });
+
+        // Aggiorna i clienti del mese attuale SOLO per l'anno corrente
+        const updateCurrentMonth = (delta) => {
+          const currentMonth = new Date().getMonth();
+          if (!datasets[currentYear]) {
+            datasets[currentYear] = new Array(12).fill(0);
+          }
+          datasets[currentYear][currentMonth] = Math.max(0, datasets[currentYear][currentMonth] + delta);
+
+          userChart.data.datasets.forEach((ds) => {
+            if (parseInt(ds.label) === currentYear) {
+              ds.data = [...datasets[currentYear]];
+            }
+          });
+
+          userChart.update();
+        };
+
+        document.getElementById('addClient').addEventListener('click', () => updateCurrentMonth(1));
+        document.getElementById('removeClient').addEventListener('click', () => updateCurrentMonth(-1));
+      </script>
+
+      <script>
+        function simulateDynamicUpdates() {
+          // Aggiorna membri
+          membersData.forEach(member => {
+            const change = Math.random() < 0.5 ? 1 : -1;
+            member.projects = Math.max(0, member.projects + change);
+          });
+
+          // Aggiorna progetti
+          projectsData.forEach(project => {
+            const change = Math.floor(Math.random() * 500) - 100;
+            project.spent = Math.max(0, project.spent + change);
+          });
+
+          updateMembersTable();
+          updateProjectsTable();
+        }
+
+        updateMembersTable();
+        updateProjectsTable();
+
+        setInterval(simulateDynamicUpdates, 5000);
+      </script>
+
+
+      <!-- LOGIN / REGISTER MODAL -->
+      <div id="modal-auth" class="fixed inset-0 flex items-center justify-center bg-black/40 hidden z-50">
+        <div class="w-full max-w-xl bg-white rounded-xl overflow-hidden shadow-xl">
+          <div class="p-6 grid grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-xl font-semibold">Accedi o registrati</h3>
+              <p class="text-sm text-slate-600 mt-2">Per accedere al piano Base o comprare i piani Premium crea un
+                account.
+              </p>
+
+              <div class="mt-4">
+                <label class="block text-xs">Email</label>
+                <label for="auth-email" class="block text-sm font-medium text-slate-700">
+                  Email
+                </label>
+                <input id="auth-email" name="email" class="w-full mt-1 p-2 border rounded-md" type="email"
+                  placeholder="Inserisci la tua email" />
+              </div>
+              <div class="mt-3">
+                <label class="block text-xs">Password</label>
+                <label for="auth-pass" class="block text-sm font-medium text-slate-700 mt-4">
+                  Password
+                </label>
+                <input id="auth-pass" name="password" class="w-full mt-1 p-2 border rounded-md" type="password"
+                  placeholder="Inserisci la tua password" />
+              </div>
+
+              <div class="mt-4 flex gap-3">
+                <button id="btn-login" class="px-4 py-2 rounded-md bg-sky-600 text-white">Accedi</button>
+                <button id="btn-register" class="px-4 py-2 rounded-md border">Registrati</button>
+                <button id="btn-close-modal" class="ml-auto text-sm text-slate-500">Chiudi</button>
+              </div>
+
+              <p class="text-xs text-slate-500 mt-3">Nota: questo è un mockup front-end. Sostituire la logica di
+                autenticazione con la vostra API e servizi di pagamento (es. Stripe).</p>
+            </div>
+            <div>
+              <h4 class="font-semibold">Perché registrarsi?</h4>
+              <ul class="text-sm text-slate-600 mt-3 space-y-2">
+                <li>• Salva i tuoi report</li>
+                <li>• Sblocca il piano Base</li>
+                <li>• Passa ai piani premium quando vuoi</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        // Mostra il modal
+        const modalAuth = document.getElementById('modal-auth');
+
+        document.getElementById('btn-open-login').addEventListener('click', (e) => {
+          e.preventDefault(); // previene il comportamento di default del link
+          modalAuth.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden'); // blocca lo scroll della pagina
+          modalAuth.querySelector('#auth-email').focus(); // mette il focus sull'input email
+        });
+
+
+        btnsOpenLogin.forEach(btn => {
+          if (btn) btn.addEventListener('click', () => {
+            modalAuth.classList.remove('hidden');
+          });
+        });
+
+        // Chiudi il modal
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+          modalAuth.classList.add('hidden');
+        });
+
+        // Chiudi cliccando fuori dal modal
+        modalAuth.addEventListener('click', (e) => {
+          if (e.target === modalAuth) {
+            modalAuth.classList.add('hidden');
+          }
+        });
+
+        // Eventi login/registrati (mockup)
+
+        document.getElementById('btn-login').addEventListener('click', () => {
+          const email = document.getElementById('auth-email').value;
+          const pass = document.getElementById('auth-pass').value;
+
+          const savedUser = JSON.parse(localStorage.getItem("utente"));
+
+          if (savedUser && savedUser.email === email && savedUser.password === pass) {
+            alert("✅ Login riuscito!");
+            modalAuth.classList.add('hidden');
+            window.location.href = "profilo.html";
+          } else {
+            alert("❌ Credenziali non valide o account inesistente.");
+          }
+        });
+
+
+
+        // Reindirizza alla pagina di registrazione
+        document.getElementById('btn-register').addEventListener('click', () => {
+          const email = document.getElementById('auth-email').value;
+          const pass = document.getElementById('auth-pass').value;
+          const planSelect = document.getElementById('reg-piano'); // se hai un select per i piani nel form di registrazione
+          const plan = planSelect ? planSelect.value : 'base'; // di default Base
+
+          if (email && pass) {
+            const newUser = {
+              nome: "",
+              cognome: "",
+              email: email,
+              plan: plan,
+              password: pass,
+              history: []
+            };
+
+            localStorage.setItem("utente", JSON.stringify(newUser));
+
+            alert("✅ Registrazione completata!");
+            modalAuth.classList.add('hidden');
+            window.location.href = "profilo.html"; // porta subito al profilo
+          } else {
+            alert("⚠️ Inserisci email, password e piano.");
+          }
+        });
+
+      </script>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const modalAuth = document.getElementById('modal-auth');
+          if (!modalAuth) return; // niente modal nella pagina
+
+          // Selettori che aprono il modal: id storici + classe + data-attribute
+          const openSelectorList = [
+            '#btn-open-login',
+            '#btn-open-login-2',
+            '#cta-login',
+            '.btn-open-login',
+            '[data-open-auth]'
+          ];
+
+          // raccogli tutti gli elementi che corrispondono ai selettori
+          const openButtons = openSelectorList
+            .map(sel => Array.from(document.querySelectorAll(sel)))
+            .flat();
+
+          // funzione di apertura
+          function openAuthModal(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            modalAuth.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden'); // blocca lo scroll della pagina
+            // optionally: metti il focus sul primo campo
+            const emailInput = modalAuth.querySelector('#auth-email');
+            if (emailInput) emailInput.focus();
+          }
+
+          // collega listener a tutti i trigger trovati
+          openButtons.forEach(btn => btn.addEventListener('click', openAuthModal));
+
+          // Se non ci sono trigger (per esempio hai un solo pulsante), metti comunque uno listener sul singolo id
+          const singleBtn = document.getElementById('btn-open-login');
+          if (singleBtn && !openButtons.includes(singleBtn)) {
+            singleBtn.addEventListener('click', openAuthModal);
+          }
+
+          // Chiudi modal (pulsante)
+          const closeBtn = document.getElementById('btn-close-modal');
+          if (closeBtn) closeBtn.addEventListener('click', () => {
+            modalAuth.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+          });
+
+          // Chiudi cliccando fuori dal contenuto
+          modalAuth.addEventListener('click', (ev) => {
+            if (ev.target === modalAuth) {
+              modalAuth.classList.add('hidden');
+              document.body.classList.remove('overflow-hidden');
+            }
+          });
+
+        });
+      </script>
+
+  </section>
+
+</body>
+
+</html>

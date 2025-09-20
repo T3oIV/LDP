@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Profilo & Impostazioni — LDP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Navbar minimal */
+  .nav-link {
+    position: relative;
+    padding-bottom: 3px;
+    transition: all 0.2s ease;
+    color:#334155;
+    font-weight:500;
+  }
+  .nav-link::after {
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:0%;
+    height:2px;
+    background:#0ea5e9;
+    transition:width 0.3s ease;
+  }
+  .nav-link:hover::after {
+    width:100%;
+  }
+  .nav-link.active {
+    color:#0ea5e9;
+    font-weight:600;
+  }
+  .nav-link.active::after {
+    width:100%;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ===== HEADER (sostituisci la tua sezione header con questa) ===== -->
+<header class="bg-white/80 backdrop-blur-md border-b shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="index.html" class="flex items-center gap-3">
+      <div class="w-50 h-10 rounded-md overflow-hidden shadow-md">
+      <img src="images/logo.png" alt="Logo LDP" class="w-full h-full object-cover">
+    </div>
+
+      <div>
+        <div class="font-semibold text-slate-800 text-lg">ConsulenzaLab</div>
+        <div class="text-xs text-slate-500">Legale · Fiscale · Dati</div>
+      </div>
+    </a>
+
+    <!-- Link "torna alla home" (NOTA: chiuso correttamente) -->
+    <a href="index.html"
+        class="hidden md:inline-flex items-center gap-1 text-sm text-slate-600 font-medium hover:text-slate-800 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
+      </svg>
+      Torna alla Home
+    </a>
+
+    <!-- Menu principale -->
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium relative">
+      <a href="index.html" class="nav-link">Home</a>
+
+      <!-- (mantieni i tuoi dropdown qui) -->
+      <div class="relative group">
+        <button class="nav-link flex items-center gap-1">Informatica
+          <svg class="w-3 h-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div class="absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+       
+          <a href="powerbi.html" class="block px-4 py-2 hover:bg-slate-100">Dashboard</a>
+          <a href="ml.html" class="block px-4 py-2 hover:bg-slate-100">Machine Learning</a>
+          <a href="ai-reports.html" class="block px-4 py-2 hover:bg-slate-100">AI Reports</a>
+        </div>
+      </div>
+
+      <!-- altri link -->
+      <a href="fatture.html" class="nav-link">Fatture</a>
+      <a href="documenti.html" class="nav-link">Documenti</a>
+      <a href="profilo.html" class="nav-link">Profilo</a>
+      <a href="help.html" class="nav-link">Help</a>
+
+      <!-- BOTTONE ACCEDI / REGISTRATI (con ID corretto) -->
+      <button id="btn-open-login" class="ml-4 px-4 py-2 rounded-md bg-green-600 text-white shadow hover:bg-green-700 transition">
+        Accedi / Registrati
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+// Evidenzia dinamicamente la pagina attiva
+document.addEventListener("DOMContentLoaded", ()=>{
+  const links = document.querySelectorAll(".nav-link");
+  links.forEach(link=>{
+    if(link.href === window.location.href){
+      link.classList.add("active");
+    }
+  });
+});
+</script>
+
+
+<main class="p-6 max-w-4xl mx-auto space-y-8">
+  <!-- Titolo -->
+  <h2 class="text-3xl font-bold text-slate-800 flex items-center gap-2">
+    ❓ Help & Support
+  </h2>
+  <p class="text-slate-600">Trova risposte rapide alle domande più frequenti e suggerimenti pratici per sfruttare al meglio la piattaforma.</p>
+
+  <!-- FAQ -->
+  <section class="bg-white rounded-2xl shadow-md p-6">
+    <h3 class="text-lg font-semibold mb-4">📌 Domande Frequenti (FAQ)</h3>
+    <div class="divide-y divide-slate-200">
+      
+      <!-- FAQ Item -->
+      <details class="faq-item py-3 cursor-pointer group">
+        <summary class="font-medium text-slate-800 flex justify-between items-center">
+          Come inserire dati nella sezione Base Dati?
+          <span class="text-slate-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="mt-2 text-slate-600">Inserisci almeno 3 mesi di dati storici nel formato indicato (es: 1,2,3). Puoi inserire Entrate e Costi, poi clicca "Allena Modello" per generare previsioni.</p>
+      </details>
+
+      <details class="faq-item py-3 cursor-pointer group">
+        <summary class="font-medium text-slate-800 flex justify-between items-center">
+          Come funzionano le previsioni AI?
+          <span class="text-slate-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="mt-2 text-slate-600">Le previsioni vengono generate tramite modelli di Machine Learning. La piattaforma calcola i mesi successivi e suggerisce strategie fiscali basate sui trend rilevati.</p>
+      </details>
+
+      <details class="faq-item py-3 cursor-pointer group">
+        <summary class="font-medium text-slate-800 flex justify-between items-center">
+          Quali funzionalità sono disponibili per ogni piano?
+          <span class="text-slate-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <ul class="mt-2 list-disc pl-6 text-slate-600">
+          <li><strong>Basic/Free:</strong> accesso a Dashboard limitata, help e report di esempio.</li>
+          <li><strong>Pro:</strong> accesso completo a ML, AI Reports, Dashboard avanzata.</li>
+          <li><strong>Enterprise:</strong> tutte le funzionalità Pro + supporto dedicato.</li>
+        </ul>
+      </details>
+
+      <details class="faq-item py-3 cursor-pointer group">
+        <summary class="font-medium text-slate-800 flex justify-between items-center">
+          Come contattare il supporto?
+          <span class="text-slate-400 group-open:rotate-180 transition">▼</span>
+        </summary>
+        <p class="mt-2 text-slate-600">
+          Puoi inviare una email a <a href="mailto:support@consulenzalab.it" class="text-sky-600 underline">support@consulenzalab.it</a> 
+          o aprire la chat direttamente dal sito principale.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Suggerimenti rapidi -->
+  <section class="bg-white rounded-2xl shadow-md p-6">
+    <h3 class="text-lg font-semibold mb-3">💡 Suggerimenti Rapidi</h3>
+    <ul class="list-disc pl-6 text-slate-700 space-y-1">
+      <li>Consulta sempre la Dashboard per monitorare l’andamento mensile.</li>
+      <li>Aggiorna regolarmente i dati ML per avere previsioni precise.</li>
+      <li>Usa i report AI per ottimizzare la gestione fiscale.</li>
+      <li>Se hai un piano Basic, puoi esplorare le funzionalità Pro tramite la sezione Piani.</li>
+    </ul>
+  </section>
+</main>
+
+
+  <script>
+    // Toggle FAQ
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const answer = item.querySelector('.faq-answer');
+        answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+  </script>
+
+</body>
+</html>

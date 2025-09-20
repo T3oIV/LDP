@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Fatture</title>
+  
+  <!-- Tailwind font -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Navbar minimal */
+    .nav-link {
+      position: relative;
+      padding-bottom: 3px;
+      transition: all 0.2s ease;
+      color:#334155;
+      font-weight:500;
+    }
+    .nav-link::after {
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:0%;
+      height:2px;
+      background:#0ea5e9;
+      transition:width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width:100%;
+    }
+    .nav-link.active {
+      color:#0ea5e9;
+      font-weight:600;
+    }
+    .nav-link.active::after {
+      width:100%;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans">
+
+<!-- NAVBAR -->
+<header class="bg-white/80 backdrop-blur-md border-b shadow sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <!-- Logo e titolo -->
+    <a href="index.html" class="flex items-center gap-3">
+      <div class="w-50 h-10 rounded-md overflow-hidden shadow-md">
+        <img src="images/logo.png" alt="Logo LDP" class="w-full h-full object-cover">
+      </div>
+      <div>
+        <div class="font-semibold text-slate-800 text-lg">ConsulenzaLab</div>
+        <div class="text-xs text-slate-500">Legale · Fiscale · Dati</div>
+      </div>
+    </a>
+
+    <a href="index.html"
+      class="hidden md:inline-flex items-center gap-1 text-sm text-slate-600 font-medium hover:text-slate-800 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
+      </svg>
+      Torna alla Home
+    </a>
+
+    <!-- Menu principale -->
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium relative">
+      <a href="index.html" class="nav-link">Home</a>
+
+      <!-- Dropdown Informatica -->
+      <div class="relative group">
+        <button class="nav-link flex items-center gap-1">Informatica
+          <svg class="w-3 h-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div
+          class="absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+       
+          <a href="powerbi.html" class="block px-4 py-2 hover:bg-slate-100">Dashboard</a>
+          <a href="ml.html" class="block px-4 py-2 hover:bg-slate-100">Machine Learning</a>
+          <a href="ai-reports.html" class="block px-4 py-2 hover:bg-slate-100">AI Reports</a>
+        </div>
+      </div>
+
+      <!-- Dropdown Servizi -->
+      <div class="relative group">
+        <button class="nav-link flex items-center gap-1">Servizi
+          <svg class="w-3 h-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div
+          class="absolute left-0 mt-2 w-52 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+          <a href="legal.html" class="block px-4 py-2 hover:bg-slate-100">Legal</a>
+          <a href="tax.html" class="block px-4 py-2 hover:bg-slate-100">Tax</a>
+          <a href="payroll.html" class="block px-4 py-2 hover:bg-slate-100">Payroll</a>
+          <a href="automation.html" class="block px-4 py-2 hover:bg-slate-100">Automation</a>
+          <a href="global.html" class="block px-4 py-2 hover:bg-slate-100">Global</a>
+          <a href="corporate-finance.html" class="block px-4 py-2 hover:bg-slate-100">Corporate Finance</a>
+          <a href="compliance.html" class="block px-4 py-2 hover:bg-slate-100">Compliance</a>
+          <a href="esg.html" class="block px-4 py-2 hover:bg-slate-100">ESG</a>
+          <a href="academy.html" class="block px-4 py-2 hover:bg-slate-100">Academy</a>
+        </div>
+      </div>
+
+      <!-- Link principali -->
+      <a href="fatture.html" class="nav-link active">Fatture</a>
+      <a href="documenti.html" class="nav-link">Documenti</a>
+      <a href="profilo.html" class="nav-link">Profilo</a>
+      <a href="help.html" class="nav-link">Help</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto p-6 space-y-8">
+
+  <!-- UPLOAD -->
+  <section class="bg-white shadow rounded-xl p-6">
+    <h2 class="text-xl font-bold mb-4">📤 Carica Fattura</h2>
+    <!-- Aggiunto `multiple` -->
+    <input type="file" id="fileUpload" accept=".pdf" multiple class="block mb-4">
+    <button id="uploadBtn" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Carica</button>
+    <p id="errorMsg" class="text-red-600 mt-2 hidden"></p>
+  </section>
+
+
+  <!-- FILTRI -->
+  <section class="bg-white shadow rounded-xl p-6 space-y-4">
+    <h2 class="text-lg font-semibold">🔎 Filtra e Cerca Fatture</h2>
+    <div class="flex flex-wrap gap-4">
+      <button onclick="setFilter('all')" class="filterBtn bg-slate-200 px-3 py-1 rounded">Tutte</button>
+      <button onclick="setFilter('firmata')" class="filterBtn bg-slate-200 px-3 py-1 rounded">Firmate ✅</button>
+      <button onclick="setFilter('nonfirmata')" class="filterBtn bg-slate-200 px-3 py-1 rounded">Non firmate ❌</button>
+    </div>
+    <input 
+      type="text" 
+      id="searchInput" 
+      placeholder="Cerca per nome fattura..." 
+      class="mt-2 w-full border border-slate-300 rounded px-3 py-2 text-sm"
+    />
+  </section>
+
+  <!-- LISTA FATTURE -->
+  <section class="bg-white shadow rounded-xl p-6">
+    <h2 class="text-xl font-bold mb-4">📂 Elenco Fatture</h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-slate-200 text-sm">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium text-slate-700">Nome Fattura</th>
+            <th class="px-4 py-2 text-left font-medium text-slate-700">Data Caricamento</th>
+            <th class="px-4 py-2 text-left font-medium text-slate-700">Stato</th>
+            <th class="px-4 py-2 text-left font-medium text-slate-700">Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="fattureTable" class="divide-y divide-slate-200">
+          <!-- Le righe vengono generate via JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<!-- MODALE PDF -->
+<div id="pdfModal" class="fixed inset-0 bg-black/70 flex justify-center items-center hidden">
+  <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 h-3/4 relative">
+    <button onclick="closePdf()" class="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded">✖</button>
+    <div class="absolute top-2 left-2 z-50 text-white bg-black/50 px-2 py-1 rounded" id="firmaOverlay"></div>
+    <iframe id="pdfViewer" src="" class="w-full h-full rounded"></iframe>
+  </div>
+</div>
+
+<script>
+const fattureTable = document.getElementById("fattureTable");
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileUpload");
+const errorMsg = document.getElementById("errorMsg");
+const searchInput = document.getElementById("searchInput");
+
+let filter = "all";
+let fatture = JSON.parse(localStorage.getItem("fatture")) || [];
+
+// Render iniziale
+renderFatture();
+
+// Funzione aggiungi fattura
+function addInvoice(file) {
+  if (!file.name.toLowerCase().endsWith(".pdf")) {
+    errorMsg.textContent = "❌ Formato non valido! Solo PDF.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    fatture.push({
+      name: file.name,
+      date: new Date().toLocaleDateString(),
+      data: e.target.result,
+      signed: false,
+      signedBy: null
+    });
+    localStorage.setItem("fatture", JSON.stringify(fatture));
+    renderFatture();
+    errorMsg.classList.add("hidden");
+    fileInput.value = "";
+  };
+  reader.readAsDataURL(file);
+}
+
+// Eventi upload
+uploadBtn.addEventListener("click", () => {
+  if (!fileInput.files.length) {
+    errorMsg.textContent = "❌ Seleziona prima un file!";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  // Ciclo su tutti i file selezionati
+  for (const file of fileInput.files) {
+    addInvoice(file);
+  }
+
+  // Pulizia input dopo caricamento
+  fileInput.value = "";
+});
+
+
+
+// Ricerca dinamica
+searchInput.addEventListener("input", renderFatture);
+
+// Funzione render in tabella
+function renderFatture() {
+  const query = searchInput.value.toLowerCase();
+  fattureTable.innerHTML = "";
+  fatture
+    .filter(f => filter === "all" || (filter === "firmata" && f.signed) || (filter === "nonfirmata" && !f.signed))
+    .filter(f => f.name.toLowerCase().includes(query))
+    .forEach((f, i) => {
+      fattureTable.innerHTML += `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-2">${f.name}</td>
+          <td class="px-4 py-2">${f.date}</td>
+          <td class="px-4 py-2">
+            <span class="${f.signed ? 'text-green-600' : 'text-red-600'} font-medium">
+              ${f.signed ? 'Firmata ✅ da ' + f.signedBy : 'Non firmata ❌'}
+            </span>
+          </td>
+          <td class="px-4 py-2 space-x-2">
+            <button onclick="openPdf(${i})" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">👁️ Visualizza</button>
+            ${!f.signed ? `<button onclick="signInvoice(${i})" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">✍️ Firma</button>` : ""}
+            <button onclick="deleteFattura(${i})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">🗑️ Elimina</button>
+          </td>
+        </tr>
+      `;
+    });
+}
+
+// Apri PDF
+function openPdf(index) {
+  const f = fatture[index];
+  const nomeCompleto = f.signedBy || "";
+  document.getElementById("pdfViewer").src = f.data;
+  document.getElementById("firmaOverlay").textContent = nomeCompleto ? `Firma digitale: ${nomeCompleto}` : "";
+  document.getElementById("pdfModal").classList.remove("hidden");
+}
+function closePdf() {
+  document.getElementById("pdfViewer").src = "";
+  document.getElementById("firmaOverlay").textContent = "";
+  document.getElementById("pdfModal").classList.add("hidden");
+}
+
+// Firma fattura
+function signInvoice(index) {
+  const user = JSON.parse(localStorage.getItem("profilo")) || {};
+  const nomeCompleto = user.nome ? `${user.nome} ${user.cognome || ""}` : "Utente Sconosciuto";
+  fatture[index].signed = true;
+  fatture[index].signedBy = nomeCompleto;
+  localStorage.setItem("fatture", JSON.stringify(fatture));
+  renderFatture();
+}
+
+// Elimina fattura
+function deleteFattura(index) {
+  if (confirm(`Vuoi eliminare la fattura "${fatture[index].name}"?`)) {
+    fatture.splice(index, 1);
+    localStorage.setItem("fatture", JSON.stringify(fatture));
+    renderFatture();
+  }
+}
+
+// Filtri
+function setFilter(type) {
+  filter = type;
+  renderFatture();
+  document.querySelectorAll(".filterBtn").forEach(btn => btn.classList.remove("bg-blue-300"));
+  event.target.classList.add("bg-blue-300");
+}
+</script>
+</body>
+</html>

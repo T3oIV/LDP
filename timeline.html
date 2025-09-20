@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Progetti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <h1 class="text-3xl font-bold mb-6">📅 Timeline Progetti</h1>
+
+    <div class="space-y-8">
+        <!-- Progetto esempio -->
+        <div class="bg-white rounded-2xl shadow p-4">
+            <h2 class="text-xl font-semibold mb-2">Progetto A</h2>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span>Task 1: Analisi</span>
+                    <span class="text-sm text-gray-600">01/09 → 05/09</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Task 2: Sviluppo</span>
+                    <span class="text-sm text-gray-600">06/09 → 20/09</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow p-4">
+            <h2 class="text-xl font-semibold mb-2">Progetto B</h2>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span>Task 1: Ricerca</span>
+                    <span class="text-sm text-gray-600">02/09 → 10/09</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Task 2: Implementazione</span>
+                    <span class="text-sm text-gray-600">11/09 → 25/09</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const projects = JSON.parse(localStorage.getItem('projectsData')) || [];
+            const container = document.getElementById('timelineContainer');
+
+            projects.forEach(proj => {
+                const projDiv = document.createElement('div');
+                projDiv.className = 'bg-white rounded-2xl shadow p-4 mb-6';
+                projDiv.innerHTML = `<h2 class="text-xl font-semibold mb-2">${proj.title}</h2>`;
+
+                const tasksDiv = document.createElement('div');
+                tasksDiv.className = 'space-y-2';
+                proj.tasks.forEach(task => {
+                    const taskEl = document.createElement('div');
+                    const subtaskNames = task.subtasks.map(s => s.name).join(', ');
+                    taskEl.className = 'flex justify-between';
+                    taskEl.innerHTML = `
+                <span>${task.tTitle}${subtaskNames ? ' (' + subtaskNames + ')' : ''}</span>
+            `;
+                    tasksDiv.appendChild(taskEl);
+                });
+
+                projDiv.appendChild(tasksDiv);
+                container.appendChild(projDiv);
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
